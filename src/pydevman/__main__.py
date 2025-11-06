@@ -3,7 +3,7 @@ from pprint import pprint
 
 import typer
 
-from pydevman.api_json import api_json_dump_obj_to_str, api_recurse_parse_str_to_json
+from pydevman.json.api import api_json_dump_obj_to_str, api_recurse_parse_str_to_json
 
 app = typer.Typer()
 

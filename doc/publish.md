@@ -34,8 +34,18 @@ twine upload dist/*
 
 ## **main**.py 函数
 
-```py
+```sh
 # 调用方法
+# 设置环境变量
+# windows
+$env:PYTHONPATH="src"
+# linux/macos
+export PYTHONPATH=src
+# .env
+PYTHONPATH=src
+
+# 然后
+python -m src.pydevman --flag args...
 ```
 
 ## 类型问题
