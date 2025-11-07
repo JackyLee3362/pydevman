@@ -21,6 +21,9 @@ dev = "devman.__main__:main"
 uv pip install --editable .
 # 然后
 .venv/bin/dev
+
+# 一条命令
+uv build; uv pip install --editable .
 ```
 
 ## 发布流程

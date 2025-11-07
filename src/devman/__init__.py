@@ -1,3 +1,3 @@
-from devman.common.log import config_log
+from devman.log import config_log
 
 config_log()

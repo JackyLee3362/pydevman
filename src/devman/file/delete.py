@@ -3,7 +3,7 @@ from pathlib import Path
 
 from send2trash import send2trash
 
-from devman.file.common import assert_path_exist_and_is_dir, is_empty_directory
+from devman.common import assert_path_exist_and_is_dir, is_empty_directory
 
 log = logging.getLogger(__name__)
 
