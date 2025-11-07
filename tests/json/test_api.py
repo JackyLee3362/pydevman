@@ -1,4 +1,4 @@
-from pydevman.json.api import recursive_parse
+from devman.json.api import recursive_parse
 
 
 def test_parse_simple():
