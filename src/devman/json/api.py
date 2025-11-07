@@ -3,15 +3,21 @@ import re
 from datetime import datetime
 from typing import Union
 
-from devman.json.core import recursive_parse
+from devman.json.core import parse_str, recursive_parse
 
 
 def api_json_dump_obj_to_str(obj: Union[dict, list]):
     return json.dumps(obj, indent=2, ensure_ascii=False)
 
 
-def api_recurse_parse_str_to_json(arg: str) -> Union[dict, list, str, int, float]:
-    return recursive_parse(arg)
+def api_parse_str_to_json(
+    arg: str, recursive: bool
+) -> Union[dict, list, str, int, float]:
+    # 递归解析
+    if recursive:
+        return recursive_parse(arg)
+    # 正常解析
+    return parse_str(arg)
 
 
 def get_possible_datetime_from_str(line: str) -> datetime:
