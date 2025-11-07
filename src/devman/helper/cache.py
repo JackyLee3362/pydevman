@@ -1,6 +1,7 @@
 import logging
 import time
 from os import PathLike
+from pathlib import Path
 from typing import Union
 
 from tinydb import Query, TinyDB
@@ -18,6 +19,8 @@ class JsonCache:
 
     def __init__(self, path: PathLike):
         log.info(f"连接数据库: {path}")
+        _parent = Path(path).parent
+        _parent.mkdir(parents=True, exist_ok=True)
         self._cache = TinyDB(path)
         self._query = Query()
 

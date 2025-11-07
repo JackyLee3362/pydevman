@@ -2,10 +2,7 @@ import re
 from pathlib import Path
 
 import typer
-from helper.query import query_check, query_list
 from rich.console import Console
-
-import inquirer
 
 console = Console()
 cli = typer.Typer()
@@ -62,28 +59,4 @@ def move_prefix_ext(
             not_match += 1
     console.print(
         f"总共移动文件数量={cnt}, 无法移动的文件数量={exist}, 不匹配文件数量={not_match}"
-    )
-
-
-@cli.command("move-pattern-dst", help="将文件移动到根目录")
-def move_pattern_dst_query():
-    func = "del-dir"
-    src = query_list(func, "src", "请输入源文件夹目录")
-    dst = Path(query_list(func, "dst", "请输入目标文件夹目录"))
-    pattern = query_list(func, "pattern", "请输入正则表达式")
-    dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
-    move_pattern_dst(Path(src), Path(dst), re.compile(pattern), dry)
-
-
-@cli.command("move-prefix-ext", help="按照文件末尾移动文件")
-def move_prefix_ext_query():
-    func = "move-prefix-ext"
-
-    src = query_list(func, "src", "请输入源文件夹目录")
-    dst = query_list(func, "dst", "请输入目标文件夹目录")
-    prefix = query_list(func, "prefix", "请输入文件前缀")
-    ext = query_check(func, "ext", "请输入文件拓展名")
-    dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
-    move_prefix_ext(
-        Path(src), Path(dst), prefix=re.compile(prefix, re.I), ext=ext, dry=dry
     )

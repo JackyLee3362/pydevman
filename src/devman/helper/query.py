@@ -5,7 +5,7 @@ import inquirer
 
 from devman.helper.cache import JsonCache
 
-cache = JsonCache(Path("cache", "cache.json"))
+cache = JsonCache(Path(".cache", "cache.json"))
 
 
 def query_list(func: str, name: str, msg: str, validate: Callable = None):
