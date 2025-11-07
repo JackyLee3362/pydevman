@@ -1,4 +1,8 @@
-"""并查集"""
+"""
+create_time: 2022-09
+author: Jacky Lee
+description: 并查集
+"""
 
 
 class UnionFind:
@@ -19,7 +23,8 @@ class UnionFind:
         fx, fy = self.find(x), self.find(y)
         if fx == fy:
             return
-        if self.rank[fx] < self.rank[fy]:  # 小规模往大规模合并
+        # 小规模往大规模合并
+        if self.rank[fx] < self.rank[fy]:
             fx, fy = fy, fx
         self.rank[fx] += self.rank[fy]
         self.uf[fy] = fx

@@ -36,18 +36,3 @@ class LinkList:
             next_node = ListNode(nums[i], None)
             node.next_ = next_node
             node = next_node
-
-
-def test_listnode() -> None:
-    """
-    test
-    """
-    nums = [1, 2, 3]
-    head = ListNode()
-    linklist = LinkList(head, None)
-    linklist.add_linklist(nums)
-    linklist.traverse_linklist()
-
-
-if __name__ == "__main__":
-    test_listnode()
