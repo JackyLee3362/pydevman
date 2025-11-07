@@ -2,18 +2,13 @@ import logging
 from collections import OrderedDict
 from pathlib import Path
 
-from rich import print
-from rich.console import Console
-
-from devman.helper.iter import iter_dirs, iter_files, stat_info_in_dir
+from devman.file.iter import iter_dirs, iter_files
 from devman.helper.table import build_table
 
-console = Console()
 log = logging.getLogger(__name__)
 
 
 def stat_suffix(path: Path, suffixes: list, max_depth: int = 16, max_cnt: int = 4096):
-    console.rule("根据 suffix 文件计数")
     max_cnt = 0
     suffix_set = set(suffixes)
     d = {}
@@ -25,17 +20,29 @@ def stat_suffix(path: Path, suffixes: list, max_depth: int = 16, max_cnt: int = 
             v = d.setdefault(suffix, 0)
             d[suffix] = v + 1
         if cnt > max_cnt:
-            console.print("达到最大上限文件，停止搜索")
+            log.info("达到最大上限文件，停止搜索")
             break
     header = ["文件类型", "数量"]
     rows = [(k, str(v)) for k, v in d.items()]
     rows.append(("TOTAL", str(cnt)))
     table = build_table("根据 SUFFIX 计数", header, rows)
-    console.print(table)
+    log.info(table)
+
+
+def stat_info_in_dir(path: Path) -> tuple[int, int]:
+    assert path.is_dir()
+    file_cnt = dir_cnt = other_cnt = 0
+    for item in path.iterdir():
+        if item.is_file():
+            file_cnt += 1
+        elif item.is_dir():
+            dir_cnt += 1
+        else:
+            other_cnt += 1
+    return file_cnt, dir_cnt, other_cnt
 
 
 def stat_cnt(root: Path, max_depth: int = 16):
-    console.rule("根据目录统计递归文件")
     res: dict[Path, tuple] = OrderedDict()
 
     def adder(path: Path, f, d, o):
@@ -55,11 +62,10 @@ def stat_cnt(root: Path, max_depth: int = 16):
         for k, (f, d, o) in res.items()
     ]
     table = build_table("根据目录统计文件", header, rows)
-    console.print(table)
+    log.info(table)
 
 
 def stat_prefix(root: Path, ext: list[str], max_depth: int = 16):
-    console.rule("根据目录统计递归文件前缀")
     res = {}
     ext_set = set(e.lower() for e in ext)
 
@@ -73,7 +79,7 @@ def stat_prefix(root: Path, ext: list[str], max_depth: int = 16):
     header = ["前缀 PREFIX", "数目"]
     rows = [(k, str(v)) for k, v in res.items()]
     table = build_table("根据目录统计文件", header, rows)
-    console.print(table)
+    log.info(table)
 
 
 def stat(src: str, max_depth: int = 4):
@@ -104,6 +110,7 @@ def stat(src: str, max_depth: int = 4):
         except Exception as e:
             log.error("未知错误...")
             log.exception(e)
-    print(f"目标文件夹 : {src_dir} ")
-    print(f"文件数量   : {total_file}")
-    print(f"文件夹数量 : {total_folder}")
+    # print(f"目标文件夹 : {src_dir} ")
+    # print(f"文件数量   : {total_file}")
+    # print(f"文件夹数量 : {total_folder}")
+    return src_dir, total_file, total_folder

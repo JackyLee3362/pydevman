@@ -1,6 +1,6 @@
 """
 create_time: 2025-06-23 17:19:11
-author: jackylee
+author: Jacky Lee
 """
 
 import logging
@@ -11,9 +11,9 @@ import inquirer
 import typer
 from rich.console import Console
 
-from devman.file.copy import copy_dir
-from devman.file.delete import del_dir, del_empty_dir
-from devman.file.move import move_pattern_dst, move_prefix_ext
+from devman.file.copy import copytree
+from devman.file.delete import del_dir, del_empty_dir_recursive
+from devman.file.move import move_match_pattern_file, move_prefix_ext
 from devman.file.stat import stat_cnt, stat_prefix, stat_suffix
 from devman.helper.query import query_check, query_list
 
@@ -28,6 +28,7 @@ def stat_suffix_query():
     func = "stat-suffix"
     src = query_list(func, "src", "请输入源文件夹目录")
     suffix = query_check(func, "suffix", "请输入文件名后缀(非拓展名)")
+    console.rule("根据 suffix 文件计数")
     stat_suffix(Path(src), suffix)
 
 
@@ -35,6 +36,7 @@ def stat_suffix_query():
 def stat_cnt_query():
     func = "stat-cnt"
     src = query_list(func, "src", "请输入源文件夹目录")
+    console.rule("根据目录统计递归文件")
     stat_cnt(Path(src))
 
 
@@ -43,6 +45,7 @@ def stat_prefix_query():
     func = "stat-prefix"
     src = query_list(func, "src", "请输入源文件夹目录")
     ext = query_check(func, "ext", "请输入文件拓展名")
+    console.rule("根据目录统计递归文件前缀")
     stat_prefix(Path(src), ext)
 
 
@@ -53,7 +56,9 @@ def copy_dir_query():
     src = query_list(func, "src", "请输入源文件夹目录")
     dst = query_list(func, "dst", "请输入目标文件夹目录")
     dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
-    copy_dir(Path(src), Path(dst), dry)
+    console.rule("高危操作，请谨慎操作⚠️")
+    console.log(f"源文件夹='{src}' -> 目标文件夹='{dst}'")
+    copytree(Path(src), Path(dst), dry)
 
 
 @app.command("del-dir", help="删除 dst 文件夹内容到回收站")
@@ -71,7 +76,7 @@ def del_empty_dir_query():
     console.rule("删除空文件夹")
     dst = query_list(func, "dst", "请输入目标文件夹目录")
     dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
-    del_empty_dir(Path(dst), dry)
+    del_empty_dir_recursive(Path(dst), dry)
 
 
 @app.command("move-prefix-ext", help="按照文件末尾移动文件")
@@ -82,6 +87,7 @@ def move_prefix_ext_query():
     dst = query_list(func, "dst", "请输入目标文件夹目录")
     prefix = query_list(func, "prefix", "请输入文件前缀")
     ext = query_check(func, "ext", "请输入文件拓展名")
+    dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
     dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
     move_prefix_ext(
         Path(src), Path(dst), prefix=re.compile(prefix, re.I), ext=ext, dry=dry
@@ -95,7 +101,7 @@ def move_pattern_dst_query():
     dst = Path(query_list(func, "dst", "请输入目标文件夹目录"))
     pattern = query_list(func, "pattern", "请输入正则表达式")
     dry = inquirer.confirm("是否 DRY-RUN 模式", default=True)
-    move_pattern_dst(Path(src), Path(dst), re.compile(pattern), dry)
+    move_match_pattern_file(Path(src), Path(dst), re.compile(pattern), dry)
 
 
 if __name__ == "__main__":
