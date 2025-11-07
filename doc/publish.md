@@ -8,6 +8,21 @@ tags:
 description:
 ---
 
+## 发布可执行程序
+
+```toml
+[project.scripts]
+dev = "devman.__main__:main"
+```
+
+在本地测试
+
+```sh
+uv pip install --editable .
+# 然后
+.venv/bin/dev
+```
+
 ## 发布流程
 
 ```sh

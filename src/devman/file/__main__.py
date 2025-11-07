@@ -23,7 +23,7 @@ app = typer.Typer()
 log = logging.getLogger(__name__)
 
 
-@app.command("stat-suffix", help="根据文件后缀统计文件")
+@app.command("stat-suffix", help="统计: 根据文件后缀统计文件")
 def stat_suffix_query():
     func = "stat-suffix"
     src = query_list(func, "src", "请输入源文件夹目录")
@@ -32,7 +32,7 @@ def stat_suffix_query():
     stat_suffix(Path(src), suffix)
 
 
-@app.command("stat-cnt", help="统计文件夹中每个文件的数目")
+@app.command("stat-cnt", help="统计: 统计文件夹中每个文件的数目")
 def stat_cnt_query():
     func = "stat-cnt"
     src = query_list(func, "src", "请输入源文件夹目录")
@@ -40,7 +40,7 @@ def stat_cnt_query():
     stat_cnt(Path(src))
 
 
-@app.command("stat-prefix", help="根据 PREFIX 统计文件")
+@app.command("stat-prefix", help="统计: 根据 PREFIX 统计文件")
 def stat_prefix_query():
     func = "stat-prefix"
     src = query_list(func, "src", "请输入源文件夹目录")
@@ -49,7 +49,7 @@ def stat_prefix_query():
     stat_prefix(Path(src), ext)
 
 
-@app.command("copy-dir", help="删除 dst 文件夹内容并复制 src 内容")
+@app.command("copy-dir", help="删除: 删除 dst 文件夹内容并复制 src 内容")
 def copy_dir_query():
     func = "copy-dir"
     console.rule("复制文件夹 SRC -> DST")
@@ -61,7 +61,7 @@ def copy_dir_query():
     copytree(Path(src), Path(dst), dry)
 
 
-@app.command("del-dir", help="删除 dst 文件夹内容到回收站")
+@app.command("del-dir", help="删除: 删除 dst 文件夹内容到回收站")
 def del_dir_query():
     console.rule("删除文件夹内容")
     func = "del-dir"
@@ -70,7 +70,7 @@ def del_dir_query():
     del_dir(Path(dst), dry)
 
 
-@app.command("del-empty-dir", help="删除目录中的空文件夹")
+@app.command("del-empty-dir", help="删除: 删除目录中的空文件夹")
 def del_empty_dir_query():
     func = "del-empty-dir"
     console.rule("删除空文件夹")
@@ -79,7 +79,7 @@ def del_empty_dir_query():
     del_empty_dir_recursive(Path(dst), dry)
 
 
-@app.command("move-prefix-ext", help="按照文件末尾移动文件")
+@app.command("move-prefix-ext", help="删除: 按照文件末尾移动文件")
 def move_prefix_ext_query():
     func = "move-prefix-ext"
 
@@ -94,7 +94,7 @@ def move_prefix_ext_query():
     )
 
 
-@app.command("move-pattern-dst", help="将文件移动到根目录")
+@app.command("move-pattern-dst", help="删除: 将文件移动到根目录")
 def move_pattern_dst_query():
     func = "del-dir"
     src = query_list(func, "src", "请输入源文件夹目录")

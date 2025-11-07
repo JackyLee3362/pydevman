@@ -18,7 +18,7 @@ class JsonCache:
     TIMESTAMP = "timestamp"
 
     def __init__(self, path: PathLike):
-        log.info(f"连接数据库: {path}")
+        log.debug(f"连接数据库: {path}")
         _parent = Path(path).parent
         _parent.mkdir(parents=True, exist_ok=True)
         self._cache = TinyDB(path)

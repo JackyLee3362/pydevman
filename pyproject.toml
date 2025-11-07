@@ -13,6 +13,9 @@ dependencies = [
     "typer>=0.20.0",
 ]
 
+[project.scripts]
+dev = "devman.__main__:main"
+
 [dependency-groups]
 dev = [
     "pytest>=8.4.2",

@@ -9,8 +9,9 @@ app = typer.Typer()
 console = Console()
 
 
-@app.command("parse-json")
-def recursive_parse_json(src: Path, dst: Path = None):
+@app.command("parse", help="解析字符串为 json")
+def recursive_parse_json(src: Path, dst: Path = None, recursive: bool = True):
+    "TODO: recursive 控制"
     try:
         if not src.exists():
             console.print("文件不存在")
@@ -23,7 +24,7 @@ def recursive_parse_json(src: Path, dst: Path = None):
         else:
             console.print(parsed)
     except Exception as e:
-        console.print("出现异常", e)
+        console.print("异常", e)
 
 
 if __name__ == "__main__":
