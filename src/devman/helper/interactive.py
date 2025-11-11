@@ -4,6 +4,8 @@ from pathlib import Path
 import pyperclip
 from rich.console import Console
 
+from devman.common import assert_path_exist_and_is_file
+
 log = logging.getLogger(__name__)
 console = Console()
 
@@ -20,9 +22,16 @@ def confirm() -> bool:
         log.info("无效输入，请输入'y'或'n'。")  # 提示用户输入无效，继续询问
 
 
+def from_clipboard_or_file(src: Path) -> str:
+    if src is None:
+        return pyperclip.paste()
+    assert_path_exist_and_is_file(src)
+    return src.read_text()
+
+
 def to_clipboard_or_file(dst: Path, content: str, force: bool) -> bool:
     # 写入剪贴板
-    if not dst:
+    if dst is None:
         pyperclip.copy(content)
         console.print("已复制到剪贴板")
         return

@@ -5,5 +5,5 @@ def test_listnode():
     nums = [1, 2, 3]
     head = ListNode()
     linklist = LinkList(head)
-    linklist.add_linklist(nums)
+    linklist.build_from_list(nums)
     linklist.traverse_linklist()

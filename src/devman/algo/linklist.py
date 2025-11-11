@@ -1,22 +1,23 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Optional
 
 
 class ListNode:
     def __init__(
-        self, val: Optional[int] = None, next_: Optional[ListNode] = None
+        self, val: object = None, next_node: Optional[ListNode] = None
     ) -> None:
         self.val = val
-        self.next_ = next_
+        self.next_node = next_node
 
 
 class LinkList:
-    def __init__(self, head: ListNode) -> None:
+    def __init__(self) -> None:
         """
         create linklist with head
         """
-        self.head = head
+        # 哨兵节点
+        self.head = self.tail = ListNode(None)
 
     def traverse_linklist(self, call=print) -> None:
         """
@@ -25,14 +26,19 @@ class LinkList:
         node = self.head
         while node:
             call(node.val)
-            node = node.next_
+            node = node.next_node
 
-    def add_linklist(self, nums: List[int]) -> None:
+    @staticmethod
+    def build_from_list(nums: list[object]) -> None:
         """
         build linklist with list
         """
-        node = self.head
-        for i in range(len(nums)):
-            next_node = ListNode(nums[i], None)
-            node.next_ = next_node
-            node = next_node
+        ll = LinkList()
+        if nums is None:
+            return ll
+
+        for idx, item in enumerate(nums):
+            node = ListNode(item, None)
+            if idx == 0:
+                ll.head.next_node = node
+            ll.tail = node

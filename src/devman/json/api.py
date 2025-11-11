@@ -38,3 +38,4 @@ def parse_lines(lines: list[str]) -> list:
     for idx, line in enumerate(lines):
         get_possible_datetime_from_str(line)
         get_possible_json_from_str(line)
+    return res
