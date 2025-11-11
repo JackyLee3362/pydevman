@@ -12,8 +12,8 @@ log = logging.getLogger(__name__)
 
 
 def recursive_parse(
-    arg: Union[dict, list, str, int, float],
-) -> Union[dict, list, str, int, float]:
+    arg: Union[dict, list, str, int, float, None],
+) -> Union[dict, list, str, int, float, None]:
     """递归解析,参数为 dict, list, str, int, float 中的一种
 
     Args:
@@ -26,7 +26,7 @@ def recursive_parse(
         Union[dict, list, str, int, float]: 返回类型是该五种基本类型
     """
     if arg is None:
-        raise ValueError("Argument can't be None.")
+        return arg
     if isinstance(arg, list):
         return parse_list(arg)
     elif isinstance(arg, dict):
@@ -38,7 +38,7 @@ def recursive_parse(
     elif isinstance(arg, float):
         return arg
     else:
-        raise TypeError("Argument is not any of List, Object, String or Number.")
+        raise TypeError("Argument is not any of List, Object, String, Number or None.")
 
 
 def parse_str(text: str) -> Union[dict, list, str]:

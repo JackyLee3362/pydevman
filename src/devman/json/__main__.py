@@ -29,6 +29,7 @@ def recursive_parse_json(
     if verbose:
         console.print("开启详细输出")
         config_log(logging.DEBUG)
+    content = None
     try:
         src_content = from_clipboard_or_file(src)
         parsed = api_parse_str_to_json(src_content, recursive)
@@ -39,7 +40,7 @@ def recursive_parse_json(
     except Exception as e:
         console.print("未知异常", e)
         console.print("使用 -v 详细输出")
-    if src is None and dst is None:
+    if src is None and dst is None and content:
         console.print(content)
 
 
