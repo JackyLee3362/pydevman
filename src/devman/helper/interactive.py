@@ -29,8 +29,9 @@ def from_clipboard_or_file(src: Path) -> str:
     return src.read_text()
 
 
-def to_clipboard_or_file(dst: Path, content: str, force: bool) -> bool:
+def to_clipboard_or_file(dst: Path, content: str, force: bool, quiet=False) -> bool:
     # 写入剪贴板
+    console.quiet = quiet
     if dst is None:
         pyperclip.copy(content)
         console.print("已复制到剪贴板")

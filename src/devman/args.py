@@ -20,3 +20,7 @@ ARG_FORCE_COVER_DST = Annotated[
 ARG_VERBOSE = Annotated[
     bool, typer.Option("--verbose", "-v", help="详细输出", show_default=False)
 ]
+
+ARG_QUIET = Annotated[
+    bool, typer.Option("--quiet", "-q", help="静默输出", show_default=False)
+]
