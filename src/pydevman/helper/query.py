@@ -3,7 +3,7 @@ from typing import Callable
 
 import inquirer
 
-from devman.helper.cache import JsonCache
+from pydevman.helper.cache import JsonCache
 
 cache = JsonCache(Path(".cache", "cache.json"))
 

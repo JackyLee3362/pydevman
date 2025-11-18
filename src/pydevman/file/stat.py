@@ -3,9 +3,9 @@ from abc import ABC, abstractmethod
 from collections import OrderedDict
 from pathlib import Path
 
-from devman.common import assert_path_exist_and_is_dir
-from devman.file.iter import iter_dirs, iter_files
-from devman.helper.table import build_table
+from pydevman.common import assert_path_exist_and_is_dir
+from pydevman.file.iter import iter_dirs, iter_files
+from pydevman.helper.table import build_table
 
 log = logging.getLogger(__name__)
 

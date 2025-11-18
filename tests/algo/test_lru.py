@@ -1,4 +1,4 @@
-from devman.algo.lru import BuildInLRU
+from pydevman.algo.lru import BuildInLRU
 
 
 def test_1():

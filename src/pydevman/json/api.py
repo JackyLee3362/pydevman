@@ -3,7 +3,7 @@ import re
 from datetime import datetime
 from typing import Union
 
-from devman.json.core import parse_str, recursive_parse
+from pydevman.json.core import parse_str, recursive_parse
 
 
 def api_json_dump_obj_to_str(obj: Union[dict, list]):

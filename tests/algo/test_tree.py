@@ -1,4 +1,4 @@
-from devman.algo.tree import Tree
+from pydevman.algo.tree import Tree
 
 
 def test_tree():

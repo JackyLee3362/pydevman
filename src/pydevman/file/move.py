@@ -2,7 +2,7 @@ import logging
 import re
 from pathlib import Path
 
-from devman.common import (
+from pydevman.common import (
     assert_path_exist_and_is_dir,
     assert_path_exist_and_is_file,
     assert_path_not_exist_and_is_file,

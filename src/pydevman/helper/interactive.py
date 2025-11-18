@@ -4,7 +4,7 @@ from pathlib import Path
 import pyperclip
 from rich.console import Console
 
-from devman.common import assert_path_exist_and_is_file
+from pydevman.common import assert_path_exist_and_is_file
 
 log = logging.getLogger(__name__)
 console = Console()

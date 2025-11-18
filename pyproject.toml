@@ -14,7 +14,7 @@ dependencies = [
 ]
 
 [project.scripts]
-dev = "devman.__main__:main"
+dev = "pydevman.__main__:main"
 
 [dependency-groups]
 dev = [

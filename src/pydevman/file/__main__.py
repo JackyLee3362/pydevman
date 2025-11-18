@@ -11,12 +11,12 @@ import inquirer
 import typer
 from rich.console import Console
 
-from devman.args import ARG_SRC
-from devman.file.copy import copytree
-from devman.file.delete import del_dir, del_empty_dir_recursive
-from devman.file.move import move_match_pattern_file, move_prefix_ext
-from devman.file.stat import SuffixStat, api_stat_cnt, api_stat_prefix
-from devman.helper.query import query_check, query_list
+from pydevman.args import ARG_SRC
+from pydevman.file.copy import copytree
+from pydevman.file.delete import del_dir, del_empty_dir_recursive
+from pydevman.file.move import move_match_pattern_file, move_prefix_ext
+from pydevman.file.stat import SuffixStat, api_stat_cnt, api_stat_prefix
+from pydevman.helper.query import query_check, query_list
 
 console = Console()
 app = typer.Typer()

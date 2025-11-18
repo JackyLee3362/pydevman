@@ -14,7 +14,7 @@ from pathlib import Path
 
 from send2trash import send2trash
 
-from devman.common import assert_path_exist_and_is_dir
+from pydevman.common import assert_path_exist_and_is_dir
 
 log = logging.getLogger(__name__)
 

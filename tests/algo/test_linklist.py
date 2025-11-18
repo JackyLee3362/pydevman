@@ -1,4 +1,4 @@
-from devman.algo.linklist import LinkList, ListNode
+from pydevman.algo.linklist import LinkList, ListNode
 
 
 def test_listnode():

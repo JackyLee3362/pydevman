@@ -1,8 +1,8 @@
 import typer
 
-from devman.echo import app as echo_app
-from devman.file.__main__ import app as file_app
-from devman.json.__main__ import app as json_app
+from pydevman.echo import app as echo_app
+from pydevman.file.__main__ import app as file_app
+from pydevman.json.__main__ import app as json_app
 
 app = typer.Typer()
 

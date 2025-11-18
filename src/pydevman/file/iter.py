@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Generator
 
-from devman.common import assert_path_exist_and_is_dir, is_dot_path
+from pydevman.common import assert_path_exist_and_is_dir, is_dot_path
 
 
 def iter_dirs(path: Path, max_depth: int):
