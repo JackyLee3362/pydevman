@@ -13,11 +13,11 @@ app = typer.Typer()
 console = Console()
 
 ARG_RECURSIVE = Annotated[
-    bool, typer.Option(help="是否递归解析", show_default="默认递归解析")
+    bool, typer.Option(help="是否递归去转义", show_default="默认递归")
 ]
 
 
-@app.command("parse", help="解析字符串为 json，并输出到剪贴板")
+@app.command("parse", help="解析字符串为 json(默认递归去转义)")
 def recursive_parse_json(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
@@ -27,22 +27,22 @@ def recursive_parse_json(
     quiet: ARG_QUIET = False,
 ):
     console.quiet = quiet
-    console.rule("解析 json 字符串")
     if verbose:
+        console.rule("解析 json 字符串")
         console.print("开启详细输出")
         config_log(logging.DEBUG)
-    content = None
+    dump_content = None
     try:
-        src_content = from_clipboard_or_file(src)
-        parsed = api_parse_str_to_json(src_content, recursive)
-        content = api_json_dump_obj_to_str(parsed)
-        to_clipboard_or_file(dst, content, force, quiet)
+        origin_content = from_clipboard_or_file(src)
+        parsed_content = api_parse_str_to_json(origin_content, recursive)
+        dump_content = api_json_dump_obj_to_str(parsed_content)
+        to_clipboard_or_file(dst, dump_content, force, quiet)
     except AssertionError as e:
         console.print("断言错误", e)
     except Exception as e:
         console.print("未知异常", e)
         console.print("使用 -v 详细输出")
-    console.print(content)
+    console.print(dump_content)
 
 
 if __name__ == "__main__":

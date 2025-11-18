@@ -11,10 +11,11 @@ import inquirer
 import typer
 from rich.console import Console
 
+from devman.args import ARG_SRC
 from devman.file.copy import copytree
 from devman.file.delete import del_dir, del_empty_dir_recursive
 from devman.file.move import move_match_pattern_file, move_prefix_ext
-from devman.file.stat import stat_cnt, stat_prefix, stat_suffix
+from devman.file.stat import SuffixStat, api_stat_cnt, api_stat_prefix
 from devman.helper.query import query_check, query_list
 
 console = Console()
@@ -24,12 +25,16 @@ log = logging.getLogger(__name__)
 
 
 @app.command("stat-suffix", help="统计: 根据文件后缀统计文件")
-def stat_suffix_query():
-    func = "stat-suffix"
-    src = query_list(func, "src", "请输入源文件夹目录")
-    suffix = query_check(func, "suffix", "请输入文件名后缀(非拓展名)")
+def stat_suffix_query_interaction(src: ARG_SRC):
+    # func = "stat-suffix"
+    # src = query_list(func, "src", "请输入源文件夹目录")
+    # suffix = query_check(func, "suffix", "请输入文件名后缀(非拓展名)")
     console.rule("根据 suffix 文件计数")
-    stat_suffix(Path(src), suffix)
+    # api_stat_suffix(Path(src), suffix)
+    stat = SuffixStat(None)
+    stat.stat_paths(src)
+    table = stat.build_table()
+    console.print(table)
 
 
 @app.command("stat-cnt", help="统计: 统计文件夹中每个文件的数目")
@@ -37,7 +42,7 @@ def stat_cnt_query():
     func = "stat-cnt"
     src = query_list(func, "src", "请输入源文件夹目录")
     console.rule("根据目录统计递归文件")
-    stat_cnt(Path(src))
+    api_stat_cnt(Path(src))
 
 
 @app.command("stat-prefix", help="统计: 根据 PREFIX 统计文件")
@@ -46,7 +51,7 @@ def stat_prefix_query():
     src = query_list(func, "src", "请输入源文件夹目录")
     ext = query_check(func, "ext", "请输入文件拓展名")
     console.rule("根据目录统计递归文件前缀")
-    stat_prefix(Path(src), ext)
+    api_stat_prefix(Path(src), ext)
 
 
 @app.command("copy-dir", help="删除: 删除 dst 文件夹内容并复制 src 内容")
