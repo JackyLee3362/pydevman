@@ -1,23 +1,22 @@
-import json
 import re
 from datetime import datetime
 from typing import Union
 
-from pydevman.json.core import parse_str, recursive_parse
-
-
-def api_json_dump_obj_to_str(obj: Union[dict, list]):
-    return json.dumps(obj, indent=2, ensure_ascii=False)
+from pydevman.json.core import DelHtmlTagHandler, JsonProcessor, RecursiveHandler
 
 
 def api_parse_str_to_json(
-    arg: str, recursive: bool
+    arg: str, *, recursive: bool, del_html_tag: bool
 ) -> Union[dict, list, str, int, float]:
     # 递归解析
+    processor = JsonProcessor()
     if recursive:
-        return recursive_parse(arg)
-    # 正常解析
-    return parse_str(arg)
+        processor.register(RecursiveHandler())
+    if del_html_tag:
+        processor.register(DelHtmlTagHandler())
+
+    parsed = processor.process(arg)
+    return processor.dump_readable(parsed)
 
 
 def get_possible_datetime_from_str(line: str) -> datetime:

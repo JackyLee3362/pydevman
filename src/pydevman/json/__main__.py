@@ -6,14 +6,20 @@ from typing_extensions import Annotated
 
 from pydevman.args import ARG_DST, ARG_FORCE_COVER_DST, ARG_QUIET, ARG_SRC, ARG_VERBOSE
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
-from pydevman.json.api import api_json_dump_obj_to_str, api_parse_str_to_json
+from pydevman.json.api import api_parse_str_to_json
 from pydevman.log import config_log
 
 app = typer.Typer()
 console = Console()
 
 ARG_RECURSIVE = Annotated[
-    bool, typer.Option(help="是否递归去转义", show_default="默认递归")
+    bool,
+    typer.Option("--recursive", "-r", help="是否递归去转义", show_default="默认递归"),
+]
+
+ARG_DEL_HTML_TAG = Annotated[
+    bool,
+    typer.Option("--del-tag", help="是否递归去转义", show_default="默认递归"),
 ]
 
 
@@ -21,7 +27,8 @@ ARG_RECURSIVE = Annotated[
 def recursive_parse_json(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
-    recursive: ARG_RECURSIVE = True,
+    recursive: ARG_RECURSIVE = False,
+    del_tag: ARG_DEL_HTML_TAG = False,
     force: ARG_FORCE_COVER_DST = False,
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
@@ -34,8 +41,9 @@ def recursive_parse_json(
     dump_content = None
     try:
         origin_content = from_clipboard_or_file(src)
-        parsed_content = api_parse_str_to_json(origin_content, recursive)
-        dump_content = api_json_dump_obj_to_str(parsed_content)
+        dump_content = api_parse_str_to_json(
+            origin_content, recursive=recursive, del_html_tag=del_tag
+        )
         to_clipboard_or_file(dst, dump_content, force, quiet)
     except AssertionError as e:
         console.print("断言错误", e)

@@ -6,61 +6,125 @@ Description: 递归解析 json 代码
 
 import json
 import logging
+from abc import ABC, abstractmethod
 from typing import Union
 
 log = logging.getLogger(__name__)
 
 
-def recursive_parse(
-    arg: Union[dict, list, str, int, float, None],
-) -> Union[dict, list, str, int, float, None]:
-    """递归解析,参数为 dict, list, str, int, float 中的一种
+class AbstractHandler(ABC):
+    @abstractmethod
+    def handle_dict(self, arg: dict): ...
 
-    Args:
-        param (Union[dict, list, str, int, float]):
+    @abstractmethod
+    def handle_list(self, arg: list): ...
 
-    Raises:
-        TypeError: 类型错误
+    @abstractmethod
+    def handle_str(self, arg: str): ...
 
-    Returns:
-        Union[dict, list, str, int, float]: 返回类型是该五种基本类型
-    """
-    if arg is None:
+    @abstractmethod
+    def handle_int(self, arg: int): ...
+
+    @abstractmethod
+    def handle_float(self, arg: float): ...
+
+    @abstractmethod
+    def handle_none(self, arg): ...
+
+    @abstractmethod
+    def handle(self, arg): ...
+
+
+class DefaultHandler(AbstractHandler):
+    def handle_dict(self, arg):
+        log.debug("handle dict...")
         return arg
-    if isinstance(arg, list):
-        return parse_list(arg)
-    elif isinstance(arg, dict):
-        return parse_dict(arg)
-    elif isinstance(arg, str):
-        return parse_str(arg)
-    elif isinstance(arg, int):
+
+    def handle_list(self, arg):
+        log.debug("handle list...")
         return arg
-    elif isinstance(arg, float):
+
+    def handle_str(self, arg):
+        log.debug("handle str...")
         return arg
-    else:
-        raise TypeError("Argument is not any of List, Object, String, Number or None.")
+
+    def handle_int(self, arg):
+        log.debug("handle int...")
+        return arg
+
+    def handle_float(self, arg):
+        log.debug("handle float...")
+        return arg
+
+    def handle_none(self, arg):
+        log.debug("handle none...")
+        return arg
+
+    def handle(self, arg):
+        log.debug("handle default ...")
+        if arg is None:
+            return self.handle_none(arg)
+        if isinstance(arg, list):
+            return self.handle_list(arg)
+        elif isinstance(arg, dict):
+            return self.handle_dict(arg)
+        elif isinstance(arg, str):
+            return self.handle_str(arg)
+        elif isinstance(arg, int):
+            return self.handle_int(arg)
+        elif isinstance(arg, float):
+            return self.handle_float(arg)
+        else:
+            raise TypeError(
+                "Argument is not any of List, Object, String, Number or None."
+            )
 
 
-def parse_str(text: str) -> Union[dict, list, str]:
-    try:
-        # 如果可以被解析
-        shallow_parsed = json.loads(text)
-    except json.JSONDecodeError:
-        return text
-    deep_parsed = recursive_parse(shallow_parsed)
-    return deep_parsed
+class RecursiveHandler(DefaultHandler):
+    """递归解析,参数为 dict, list, str, int, float, None 中的一种"""
+
+    def handle_dict(self, arg):
+        _di = {}
+        for k, v in arg.items():
+            _di[k] = self.handle(v)
+        return _di
+
+    def handle_list(self, arg):
+        _list = []
+        for _, item in enumerate(arg):
+            tmp = self.handle(item)
+            _list.append(tmp)
+        return _list
+
+    def handle_str(self, arg) -> Union[dict, list, str, int, float, None]:
+        try:
+            # 如果可以被解析
+            shallow_parsed = json.loads(arg)
+        except json.JSONDecodeError:
+            return arg
+        deep_parsed = self.handle(shallow_parsed)
+        return deep_parsed
 
 
-def parse_list(li: list) -> list:
-    _list = []
-    for _, item in enumerate(li):
-        tmp = recursive_parse(item)
-        _list.append(tmp)
-    return _list
+class DelHtmlTagHandler(DefaultHandler):
+    def handle_str(self, arg):
+        import bs4
+
+        return bs4.BeautifulSoup(arg, "html.parser").get_text()
 
 
-def parse_dict(di: dict) -> dict:
-    _di = {}
-    for k, v in di.items():
-        _di[k] = recursive_parse(v)
-    return _di
+class JsonProcessor:
+    def __init__(self):
+        self.handlers: list[AbstractHandler] = []
+
+    def register(self, handler: AbstractHandler):
+        self.handlers.append(handler)
+
+    def process(self, text):
+        _text = text
+        for handler in self.handlers:
+            _text = handler.handle(text)
+        return _text
+
+    def dump_readable(self, obj: Union[str, dict, list]):
+        return json.dumps(obj, indent=2, ensure_ascii=False)

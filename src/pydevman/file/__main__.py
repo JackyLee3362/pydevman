@@ -16,7 +16,8 @@ from pydevman.file.copy import copytree
 from pydevman.file.delete import del_dir, del_empty_dir_recursive
 from pydevman.file.move import move_match_pattern_file, move_prefix_ext
 from pydevman.file.stat import SuffixStat, api_stat_cnt, api_stat_prefix
-from pydevman.query.query import query_check, query_list
+
+# from pydevman.query.query import query_check, query_list
 
 console = Console()
 app = typer.Typer()
