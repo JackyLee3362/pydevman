@@ -29,4 +29,6 @@ dev json parse --help
 dev json parse
 ```
 
+类似的工具 [jq 1.8 Manual](https://jqlang.org/manual/)
+
 ## 子应用 FILE

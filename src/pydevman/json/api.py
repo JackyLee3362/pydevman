@@ -6,7 +6,7 @@ from pydevman.json.core import DelHtmlTagHandler, JsonProcessor, RecursiveHandle
 
 
 def api_parse_str_to_json(
-    arg: str, *, recursive: bool, del_html_tag: bool
+    text: str, *, recursive: bool, del_html_tag: bool
 ) -> Union[dict, list, str, int, float]:
     # 递归解析
     processor = JsonProcessor()
@@ -15,8 +15,14 @@ def api_parse_str_to_json(
     if del_html_tag:
         processor.register(DelHtmlTagHandler())
 
-    parsed = processor.process(arg)
+    parsed = processor.process(text)
     return processor.dump_readable(parsed)
+
+
+def api_encode_json_to_str(text: str):
+    processor = JsonProcessor()
+    parsed = processor.process(text)
+    return processor.dump_inline(parsed)
 
 
 def get_possible_datetime_from_str(line: str) -> datetime:

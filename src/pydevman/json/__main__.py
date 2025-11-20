@@ -1,3 +1,4 @@
+import json
 import logging
 
 import typer
@@ -6,7 +7,7 @@ from typing_extensions import Annotated
 
 from pydevman.args import ARG_DST, ARG_FORCE_COVER_DST, ARG_QUIET, ARG_SRC, ARG_VERBOSE
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
-from pydevman.json.api import api_parse_str_to_json
+from pydevman.json.api import api_encode_json_to_str, api_parse_str_to_json
 from pydevman.log import config_log
 
 app = typer.Typer()
@@ -33,10 +34,10 @@ def recursive_parse_json(
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
 ):
+    # TODO: 解决模板代码的问题
+    # TODO: 解决日志配置的问题
     console.quiet = quiet
     if verbose:
-        console.rule("解析 json 字符串")
-        console.print("开启详细输出")
         config_log(logging.DEBUG)
     dump_content = None
     try:
@@ -45,12 +46,41 @@ def recursive_parse_json(
             origin_content, recursive=recursive, del_html_tag=del_tag
         )
         to_clipboard_or_file(dst, dump_content, force, quiet)
+        console.print(dump_content)
     except AssertionError as e:
         console.print("断言错误", e)
+    except json.JSONDecodeError as e:
+        console.print("无法解析字符串为 json", e)
     except Exception as e:
         console.print("未知异常", e)
         console.print("使用 -v 详细输出")
-    console.print(dump_content)
+
+
+@app.command("inline", help="将 json 变为单行")
+def encode_json_to_inline_str(
+    src: ARG_SRC = None,
+    dst: ARG_DST = None,
+    force: ARG_FORCE_COVER_DST = False,
+    verbose: ARG_VERBOSE = False,
+    quiet: ARG_QUIET = False,
+):
+    console.quiet = quiet
+    if verbose:
+        config_log(logging.DEBUG)
+    dump_content = None
+    try:
+        origin_content = from_clipboard_or_file(src)
+        dump_content = api_encode_json_to_str(origin_content)
+        to_clipboard_or_file(dst, dump_content, force, quiet)
+        # FIXME 解决 console 无法打印列表的问题
+        console.print(dump_content)
+    except AssertionError as e:
+        console.print("断言错误", e)
+    except json.JSONDecodeError as e:
+        console.print("无法解析字符串为 json", e)
+    except Exception as e:
+        console.print("未知异常", e)
+        console.print("使用 -v 详细输出")
 
 
 if __name__ == "__main__":

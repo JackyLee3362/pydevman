@@ -29,6 +29,9 @@ class AbstractHandler(ABC):
     def handle_float(self, arg: float): ...
 
     @abstractmethod
+    def handle_bool(self, arg: bool): ...
+
+    @abstractmethod
     def handle_none(self, arg): ...
 
     @abstractmethod
@@ -70,6 +73,9 @@ class DefaultHandler(AbstractHandler):
             return self.handle_dict(arg)
         elif isinstance(arg, str):
             return self.handle_str(arg)
+        # isinstance(False, int) >> true
+        # isinstance(True, int) >> true
+        # issubclass(bool, int) >> true
         elif isinstance(arg, int):
             return self.handle_int(arg)
         elif isinstance(arg, float):
@@ -120,11 +126,19 @@ class JsonProcessor:
     def register(self, handler: AbstractHandler):
         self.handlers.append(handler)
 
-    def process(self, text):
-        _text = text
+    def process(self, text: str):
+        try:
+            _text = json.loads(text)
+        except json.JSONDecodeError as e:
+            log.error(f'无法解析字符串, text="{text}"')
+            raise e
+
         for handler in self.handlers:
-            _text = handler.handle(text)
+            _text = handler.handle(_text)
         return _text
 
     def dump_readable(self, obj: Union[str, dict, list]):
         return json.dumps(obj, indent=2, ensure_ascii=False)
+
+    def dump_inline(self, obj: Union[str, dict, list]):
+        return json.dumps(obj, ensure_ascii=False)
