@@ -4,7 +4,7 @@ from typing import Generator
 from pydevman.common import assert_path_exist_and_is_dir, is_dot_path
 
 
-def iter_dirs(path: Path, max_depth: int):
+def iter_dirs(path: Path, max_depth: int) -> Generator[Path, None, None]:
     _path = path.absolute()
     assert_path_exist_and_is_dir(_path)
     q = [(_path, 0)]
