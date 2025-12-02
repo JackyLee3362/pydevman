@@ -19,10 +19,15 @@ def api_parse_str_to_json(
     return processor.dump_readable(parsed)
 
 
-def api_encode_json_to_str(text: str):
+def api_format_json_inline(text: str):
     processor = JsonProcessor()
     parsed = processor.process(text)
     return processor.dump_inline(parsed)
+
+
+def api_dump_json_to_str(text: str):
+    processor = JsonProcessor()
+    return processor.dump_inline(text)
 
 
 def get_possible_datetime_from_str(line: str) -> datetime:

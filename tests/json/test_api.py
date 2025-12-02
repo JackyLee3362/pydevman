@@ -1,6 +1,6 @@
 from rich.console import Console
 
-from pydevman.json.api import api_encode_json_to_str, api_parse_str_to_json
+from pydevman.json.api import api_format_json_inline, api_parse_str_to_json
 
 console = Console()
 
@@ -27,4 +27,4 @@ def test_parse_recursive():
 
 def test_inline():
     s = r'{"list": [true, "foo", 2]}'
-    api_encode_json_to_str(s)
+    api_format_json_inline(s)

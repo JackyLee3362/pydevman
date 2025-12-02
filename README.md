@@ -1,4 +1,4 @@
-# PY DEV MAN
+# PY pydevman MAN
 
 开发者的 python 工具集
 
@@ -6,14 +6,19 @@
 
 ```sh
 pip install pydevman
+# 或者
+uv add pydevman
+```
+
+```sh
 # 测试命令
-dev echo hello
+pydevman echo hello
 # 查看所有子应用
-dev --help
+pydevman --help
 # 查看某个子应用的所有命令
-dev json --help
+pydevman json --help
 # 查看某个子应用某个命令的使用方法
-dev json parse --help
+pydevman json parse --help
 ```
 
 ## 子应用 ECHO
@@ -26,7 +31,7 @@ dev json parse --help
 
 ```sh
 # 将剪贴板中的内容递归解析，并输出到剪贴板
-dev json parse
+pydevman json parse
 ```
 
 类似的工具 [jq 1.8 Manual](https://jqlang.org/manual/)

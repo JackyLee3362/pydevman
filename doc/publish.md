@@ -33,7 +33,7 @@ uv pip install dist/
 twine upload dist/*
 ```
 
-## **main**.py 函数
+## main.py 函数
 
 ```sh
 # 调用方法
