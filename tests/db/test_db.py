@@ -11,7 +11,7 @@ from pydevman.db.core import BaseMapper
 class Base(DeclarativeBase): ...
 
 
-class SchemaBase:
+class AuditMixin:
     """表结构基础:包含表基础字段(创建时间、更新时间和软删除标识)"""
 
     create_time: Mapped[datetime] = mapped_column(
@@ -24,7 +24,7 @@ class SchemaBase:
 
 
 @dataclass
-class User(Base, SchemaBase):
+class User(Base, AuditMixin):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(
@@ -35,7 +35,7 @@ class User(Base, SchemaBase):
 
 
 @dataclass
-class Order(Base, SchemaBase):
+class Order(Base, AuditMixin):
     __tablename__ = "order"
 
     id: Mapped[int] = mapped_column(
@@ -75,12 +75,12 @@ class Service:
         self.user_mapper = user_mapper
         self.order_mapper = order_mapper
 
-    def get_user_order(self, user_id, order_id):
+    def get_user_order(self, user_id: int, order_id: int):
         # expire_on_commit=False 主要是 DetachedInstanceError
         #  由于会话关闭后，对象返回，再次读取对象会 Error
         with Session(self.engine, expire_on_commit=False) as session, session.begin():
-            user = self.user_mapper.get(session, User.id == user_id)
-            order = self.order_mapper.get(session, Order.id == order_id)
+            user = self.user_mapper.get_by_condition(session, User.id == user_id)
+            order = self.order_mapper.get_by_condition(session, Order.id == order_id)
         return user, order
 
     def insert_user_order(self, user: User, order: Order):
@@ -96,7 +96,7 @@ class Service:
             self.order_mapper.upsert_one(session, order)
 
 
-if __name__ == "__main__":
+def test_db():
     db = Database("sqlite:///:memory:")
     user_mapper = BaseMapper(User)
     order_mapper = BaseMapper(Order)

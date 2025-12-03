@@ -14,12 +14,12 @@ class BaseMapper(Generic[ModelType]):
         assert hasattr(model, "is_delete"), "必须有 is_delete 属性"
         self.model = model
 
-    def get(self, session: Session, criteria: OperatorExpression):
+    def get_by_condition(self, session: Session, condition: OperatorExpression):
         """获取单个对象 by 条件"""
         stmt = session.query(self.model)
         # xxx == False 会让 Linter 提示并转化为 not xxx，所以用 false()
         stmt = stmt.filter(self.model.is_delete == false())
-        stmt = stmt.filter(criteria)
+        stmt = stmt.filter(condition)
 
         return stmt.scalar()
 
@@ -27,14 +27,14 @@ class BaseMapper(Generic[ModelType]):
         """获取单个对象 by id"""
         return session.query(self.model).filter(self.model.id == id).first()
 
-    def get_batch(
-        self, session: Session, criteria: OperatorExpression = None
+    def get_batch_by_condition(
+        self, session: Session, condition: OperatorExpression = None
     ) -> type[ModelType]:
         """批量获取"""
         stmt = session.query(self.model)
         stmt = stmt.filter(self.model.is_delete == false())
-        if criteria is not None:
-            stmt = stmt.filter(criteria)
+        if condition is not None:
+            stmt = stmt.filter(condition)
         return stmt.all()
 
     def insert(self, session: Session, po: ModelType) -> ModelType:
@@ -55,11 +55,11 @@ class BaseMapper(Generic[ModelType]):
         self,
         session: Session,
         po: ModelType,
-        criteria: OperatorExpression = None,
+        condition: OperatorExpression = None,
         force: bool = False,
     ) -> ModelType:
         assert isinstance(po, self.model)
-        old = session.query(self.model).filter(criteria).scalar()
+        old = session.query(self.model).filter(condition).scalar()
         # 如果不存在则插入
         if not old:
             session.add(po)
@@ -83,12 +83,12 @@ class BaseMapper(Generic[ModelType]):
             res.append(_new)
         return po_list
 
-    def delete_soft(self, session: Session, id: int):
+    def delete_soft_by_id(self, session: Session, id: int):
         """软删除 by id"""
         data = session.query(self.model).filter(self.model.id == id).all()
         for item in data:
             item.is_delete = True
 
-    def delete(self, session: Session, id: int):
+    def delete_by_id(self, session: Session, id: int):
         """硬删除 by id"""
         session.query(self.model).filter(self.model.id == id).delete()
