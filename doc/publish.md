@@ -8,6 +8,18 @@ tags:
 description:
 ---
 
+## 安装工具
+
+```sh
+brew install twine
+# scoop install twine # scoop 安装的 twine 是另一个工具
+pipx install twine
+pip install twine
+```
+
+## 配置密钥
+
+- [配置 Twine 并发布 Python 程序包 - 亚马逊 CodeCatalyst](https://docs.aws.amazon.com/zh_cn/codecatalyst/latest/userguide/packages-python-twine.html)
 
 ## 发布流程
 
