@@ -2,7 +2,7 @@ import logging
 import re
 from pathlib import Path
 
-from pydevman.common import (
+from pydevman.file.common import (
     assert_path_exist_and_is_dir,
     assert_path_exist_and_is_file,
     assert_path_not_exist_and_is_file,
@@ -11,12 +11,16 @@ from pydevman.common import (
 log = logging.getLogger(__name__)
 
 
-def _move_file(src: Path, dst: Path, dry: bool):
+def move_file_to_dst_path(src: Path, dst: Path, *, dry: bool):
     assert_path_exist_and_is_file(src)
     assert_path_not_exist_and_is_file(dst)
     log.debug(f"(dry={dry})移动文件({not dry}: {src} -> {dst}")
-    if not dry:
-        src.rename(dst)
+    try:
+        if not dry:
+            src.rename(dst)
+        return dst
+    except OSError as e:
+        raise Exception(f"{dst} 文件无法移动: {e}")
 
 
 def move_match_pattern_file(
@@ -41,7 +45,7 @@ def move_match_pattern_file(
             continue
         if src_path.is_file() and pat.search(src_path.stem):
             dst_path = dst.joinpath(src_path.name)
-            _move_file(src_path, dst_path, dry)
+            move_file_to_dst_path(src_path, dst_path, dry)
     # 总结
     log.debug(f"总共移动文件({not dry}): {total_cnt} 个(最大移动文件为 {max_cnt})")
     return total_cnt

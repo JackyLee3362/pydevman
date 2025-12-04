@@ -1,4 +1,12 @@
-from pydevman.string.match import increment_str_last_num, match_str_last_num
+from pydevman.string.match import (
+    increment_str_last_num,
+    match_by_strategy,
+    match_str_last_num,
+)
+
+
+def test_match():
+    assert match_by_strategy("abc", "abc", "equal")
 
 
 def test_get_num_from_str():

@@ -2,7 +2,7 @@ import enum
 import re
 
 
-class MatchStrategy(enum, str):
+class MatchStrategy(str, enum.Enum):
     EQUAL = "equal"
     INCLUDE = "include"
     PREFIX = "prefix"

@@ -24,11 +24,8 @@ def create_config(arg: Union[PathLike, Dict], env: str = None):
     )
 
 
-def merge_config(config: Dynaconf, arg: Union[PathLike, Dict], env: str = None):
-    """TODO: 合并两个配置"""
-    raise NotImplementedError
-
-
-def merge_dict(base_dict, new_dict):
-    """TODO: 合并两个字典"""
-    raise NotImplementedError
+def merge_config_from_file(config: Dynaconf, arg: PathLike, env: str = None):
+    """从路径中合并配置"""
+    new_config = config.from_env(env) if env else config
+    new_config.load_file(path=arg)
+    return new_config
