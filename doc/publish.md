@@ -21,6 +21,12 @@ pip install twine
 
 - [配置 Twine 并发布 Python 程序包 - 亚马逊 CodeCatalyst](https://docs.aws.amazon.com/zh_cn/codecatalyst/latest/userguide/packages-python-twine.html)
 
+## 本地调试问题
+
+```sh
+uv build 后
+```
+
 ## 发布流程
 
 ```sh
@@ -40,6 +46,8 @@ uv add [package] --dev
 uv build
 # 上传到本地
 uv pip install dist/
+# 清除缓存
+uv clear cache
 
 # 上传到 pypi
 twine upload dist/*
