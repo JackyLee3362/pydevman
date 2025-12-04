@@ -1,5 +1,7 @@
 # PY pydevman MAN
 
+Version: 1.5
+
 开发者的 python 工具集
 
 ## 如何安装
