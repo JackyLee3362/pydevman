@@ -13,14 +13,17 @@ def create_config(arg: Union[PathLike, Dict], env: str = None):
         return Dynaconf(
             # root_path=root_path,
             settings_files=arg,
-            # merge_enabled=True,
+            # 根路径合并
+            merge_enabled=True,
         )
     return Dynaconf(
         # root_path=root_path,
         environments=True,
-        default_env=env,
         settings_files=arg,
-        # merge_enabled=True,
+        default_env="default",
+        env=env,
+        # 根路径合并
+        merge_enabled=True,
     )
 
 
