@@ -86,14 +86,14 @@ class Service:
     def insert_user_order(self, user: User, order: Order):
         """事务需要在业务层保证，而不是 Mapper"""
         with Session(self.engine) as session, session.begin():
-            self.user_mapper.create(session, user)
-            self.order_mapper.create(session, order)
+            self.user_mapper.insert(session, user)
+            self.order_mapper.insert(session, order)
 
     def update_user_order(self, user: User, order: Order):
         """事务需要在业务层保证，而不是 Mapper"""
         with Session(self.engine) as session, session.begin():
-            self.user_mapper.upsert_one(session, user)
-            self.order_mapper.upsert_one(session, order)
+            self.user_mapper.upsert_by(session, "id", user)
+            self.order_mapper.upsert_by(session, "id", order)
 
 
 def test_db():
@@ -109,3 +109,19 @@ def test_db():
     res = service.get_user_order(1, 1)
     service.update_user_order()
     print(res)
+
+
+def test_upsert():
+    db = Database("sqlite:///:memory:")
+    mapper = BaseMapper(User)
+    user1 = User(name="alice", age=12)
+    user2 = User(name="alice", age=13)
+    with Session(db.engine) as session, session.begin():
+        mapper.upsert_by(session, "name", user1)
+        session.commit()
+    with Session(db.engine) as session, session.begin():
+        mapper.upsert_by(session, "name", user2)
+        session.commit()
+    with Session(db.engine) as session, session.begin():
+        po = mapper.get(session, id=1)
+        assert po.age == 13

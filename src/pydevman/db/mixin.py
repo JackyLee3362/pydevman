@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, String
+from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
 
@@ -10,7 +10,7 @@ class Base(DeclarativeBase): ...
 
 class IdMixin:
     id: Mapped[int] = mapped_column(
-        BigInteger, primary_key=True, autoincrement=True, comment="主键"
+        Integer, primary_key=True, autoincrement=True, comment="主键"
     )
 
 
