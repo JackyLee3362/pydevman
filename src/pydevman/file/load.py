@@ -2,7 +2,7 @@ import configparser
 import json
 from pathlib import Path
 
-import toml
+import tomli
 import yaml
 from omegaconf import OmegaConf
 
@@ -35,8 +35,8 @@ def _parse_yaml(_path):
 
 
 def _parse_toml(_path):
-    with open(_path, encoding="utf-8") as stream:
-        return toml.load(stream)
+    with open(_path, "rb") as stream:
+        return tomli.load(stream)
 
 
 def _parse_ini(_path):

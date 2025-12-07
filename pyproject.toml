@@ -13,7 +13,7 @@ dependencies = [
     "send2trash>=1.8.3",
     "sqlalchemy>=2.0.44",
     "tinydb>=4.8.2",
-    "toml>=0.10.2",
+    "tomli>=2.3.0",
     "typer>=0.20.0",
 ]
 

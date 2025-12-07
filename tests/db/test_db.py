@@ -86,8 +86,8 @@ class Service:
     def insert_user_order(self, user: User, order: Order):
         """事务需要在业务层保证，而不是 Mapper"""
         with Session(self.engine) as session, session.begin():
-            self.user_mapper.insert(session, user)
-            self.order_mapper.insert(session, order)
+            self.user_mapper.create(session, user)
+            self.order_mapper.create(session, order)
 
     def update_user_order(self, user: User, order: Order):
         """事务需要在业务层保证，而不是 Mapper"""
@@ -107,4 +107,5 @@ def test_db():
 
     service.insert_user_order(user, order)
     res = service.get_user_order(1, 1)
+    service.update_user_order()
     print(res)

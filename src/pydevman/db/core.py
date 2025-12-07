@@ -1,104 +1,83 @@
-from typing import Generic, Type, TypeVar
+from typing import Generic, Optional, Type, TypeVar
 
+from sqlalchemy import delete, select, update
 from sqlalchemy.orm import DeclarativeBase, Session
-from sqlalchemy.sql.elements import OperatorExpression
-from sqlalchemy.sql.expression import false
+from sqlalchemy.sql import ColumnElement
 
-ModelType = TypeVar("ModelType", bound=object)
+from pydevman.db.mixin import IdMixin, SoftDeleteMixin
+
+ModelType = TypeVar("ModelType", bound=DeclarativeBase)
 
 
 class BaseMapper(Generic[ModelType]):
     def __init__(self, model: Type[ModelType]):
         assert issubclass(model, DeclarativeBase), "必须是 s.o.DeclarativeBase 的子类"
-        assert hasattr(model, "id"), "必须有 id 属性"
-        assert hasattr(model, "is_delete"), "必须有 is_delete 属性"
-        self.model = model
+        assert issubclass(model, IdMixin), "必须是 IdMixin 的子类"
+        assert issubclass(model, SoftDeleteMixin), "必须是 SoftDeleteMixin 的子类"
+        self.model: Type[ModelType] = model
 
-    def get_by_condition(self, session: Session, condition: OperatorExpression):
-        """获取单个对象 by 条件"""
-        _stmt = session.query(self.model)
-        # xxx == False 会让 Linter 提示并转化为 not xxx，所以用 false()
-        _stmt = _stmt.filter(self.model.is_delete == false())
-        _stmt = _stmt.filter(condition)
-
-        return _stmt.scalar()
-
-    def get_by_id(self, session: Session, id: int):
+    def get(self, session: Session, id: int) -> ModelType | None:
         """获取单个对象 by id"""
-        return session.query(self.model).filter(self.model.id == id).first()
+        return session.get(self.model, id)
 
-    def get_batch_by_condition(
-        self, session: Session, condition: OperatorExpression = None
+    def get_by_condition(
+        self, session: Session, condition: ColumnElement[bool]
+    ) -> ModelType | None:
+        """获取单个对象 by 条件(自动过滤软删除)"""
+        stmt = select(self.model).where(self._not_soft_del).where(condition).limit(1)
+        return session.scalars(stmt).first()
+
+    def list(
+        self,
+        session: Session,
+        condition: Optional[ColumnElement[bool]] = None,
+        limit: int | None = None,
     ) -> list[ModelType]:
         """批量获取"""
-        _stmt = session.query(self.model)
-        _stmt = _stmt.filter(self.model.is_delete == false())
-        if condition is not None:
-            _stmt = _stmt.filter(condition)
-        return _stmt.all()
+        stmt = select(self.model).where(self._not_soft_del)
+        if condition:
+            stmt = stmt.where(condition)
+        if limit:
+            stmt = stmt.limit(limit)
+        return session.scalars(stmt).all()
 
-    def insert(self, session: Session, po: ModelType) -> ModelType:
+    def create(self, session: Session, po: ModelType) -> ModelType:
         """插入"""
         session.add(po)
-        # session.commit() # 事物由上层控制
-        # session.refresh(po)
         return po
 
-    def insert_batch(self, session: Session, po_list: list[ModelType]) -> ModelType:
+    def create_list(
+        self, session: Session, po_list: list[ModelType]
+    ) -> list[ModelType]:
         """批量插入"""
-        session.add_all(po_list)
-        # session.commit()
-        # session.refresh()
-        return po_list
-
-    def upsert_one(
-        self,
-        session: Session,
-        po: ModelType,
-        condition: OperatorExpression = None,
-        force: bool = False,
-    ) -> ModelType:
-        assert isinstance(po, self.model)
-        _old = session.query(self.model).filter(condition).scalar()
-        # 如果不存在则插入
-        if not _old:
-            session.add(po)
-            return po
-        if force:
-            po.id = _old.id
-            session.merge(po)
-            return po
-        return _old
-
-    def upsert_batch(
-        self,
-        session: Session,
-        po_list: list[ModelType],
-        criteria: OperatorExpression = None,
-        force: bool = False,
-    ) -> ModelType:
-        res = []
         for po in po_list:
-            _new = self.upsert_one(session, po, criteria, force)
-            res.append(_new)
+            session.add(po)
         return po_list
 
-    def delete_soft_by_id(self, session: Session, id: int):
+    def update(self, session: Session, id: int, values: dict):
+        stmt = update(self.model).where(self.model.id == id).values(**values)
+        res = session.execute(stmt)
+        return res.rowcount or 0
+
+    def update_by_condition(
+        self, session: Session, values: dict, condition: ColumnElement[bool]
+    ) -> int:
+        stmt = update(self.model).values(**values)
+        if condition is not None:
+            stmt = stmt.where(condition)
+        res = session.execute(stmt)
+        return res.rowcount or 0
+
+    def delete_soft(self, session: Session, id: int) -> int:
         """软删除 by id"""
-        _data = session.query(self.model).filter(self.model.id == id).all()
-        for item in _data:
-            item.is_delete = True
+        return self.update(session, id, {"is_delete": True})
 
-    def delete_soft_by_condition(self, session: Session, condition: OperatorExpression):
-        """软删除 by condition"""
-        _data = session.query(self.model).filter(condition).all()
-        for _item in _data:
-            _item.is_delete = True
-
-    def delete_by_id(self, session: Session, id: int):
+    def delete(self, session: Session, id: int) -> int:
         """硬删除 by id"""
-        session.query(self.model).filter(self.model.id == id).delete()
+        stmt = delete(self.model).where(self.model.id == id)
+        res = session.execute(stmt)
+        return res.rowcount or 0
 
-    def delete_by_condition(self, session: Session, condition):
-        """硬删除 by condition"""
-        session.query(self.model).filter(condition).delete()
+    @property
+    def _not_soft_del(self) -> ColumnElement[bool]:
+        return self.model.is_delete.is_(False)
