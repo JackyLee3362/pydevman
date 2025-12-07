@@ -1,1 +1,3 @@
+app.name = "dev-app"
 app.debug = true
+user.list = [4, 5, 6]

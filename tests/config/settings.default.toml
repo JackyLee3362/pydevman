@@ -1,2 +1,5 @@
-app.name="default-app"
+app.name = "default-app"
 app.debug = false
+app.version = "0.0.1"
+user.list = [1, 2, 3]
+user.names = ["default"]

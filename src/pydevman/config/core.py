@@ -1,34 +1,21 @@
 from os import PathLike
 from typing import Dict, Union
 
-from dynaconf import Dynaconf
+from omegaconf import OmegaConf
+
+from pydevman.file.load import load_config_file
 
 
-def create_config(arg: Union[PathLike, Dict], env: str = None):
+# 对于配置，建议开启环境，关闭 merge
+def create_config(arg: Union[Dict, PathLike]) -> OmegaConf:
     """单文件配置导入，可以导入 json,toml,yaml 等文件"""
-    if isinstance(arg, Dict):
-        return Dynaconf(settings=arg)
-    assert isinstance(arg, PathLike), "只能是单文件"
-    if env is None:
-        return Dynaconf(
-            # root_path=root_path,
-            settings_files=arg,
-            # 根路径合并
-            merge_enabled=True,
-        )
-    return Dynaconf(
-        # root_path=root_path,
-        environments=True,
-        settings_files=arg,
-        default_env="default",
-        env=env,
-        # 根路径合并
-        merge_enabled=True,
-    )
+    _arg = arg
+    if isinstance(arg, PathLike):
+        _arg = load_config_file(arg)
+    return OmegaConf.create(_arg)
 
 
-def merge_config_from_file(config: Dynaconf, arg: PathLike, env: str = None):
+def merge_config(config: OmegaConf, arg) -> None:
     """从路径中合并配置"""
-    new_config = config.from_env(env) if env else config
-    new_config.load_file(path=arg)
-    return new_config
+    _config = create_config(arg)
+    config.merge_with(_config)
