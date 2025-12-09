@@ -14,18 +14,18 @@ class BaseMapper(Generic[ModelType]):
         assert hasattr(model, "is_delete"), "必须有软删除字段"
         self.model: Type[ModelType] = model
 
-    def get(self, session: Session, id: int) -> Union[ModelType, None]:
+    def select_by_id(self, session: Session, id: int) -> Union[ModelType, None]:
         """获取单个对象 by id"""
         return session.get(self.model, id)
 
-    def get_by_condition(
+    def select_by_condition(
         self, session: Session, condition: ColumnElement[bool]
     ) -> Union[ModelType, None]:
         """获取单个对象 by 条件(自动过滤软删除)"""
         stmt = select(self.model).where(self._not_soft_del).where(condition).limit(1)
         return session.scalars(stmt).first()
 
-    def list(
+    def select_list(
         self,
         session: Session,
         condition: Optional[ColumnElement[bool]] = None,
@@ -55,7 +55,7 @@ class BaseMapper(Generic[ModelType]):
     def update_by_po(self, session: Session, po: ModelType) -> ModelType:
         return session.merge(po)
 
-    def update(self, session: Session, id: int, values: dict):
+    def update_by_id(self, session: Session, id: int, values: dict):
         stmt = update(self.model).where(self.model.id == id).values(**values)
         res = session.execute(stmt)
         return res.rowcount or 0
@@ -92,7 +92,7 @@ class BaseMapper(Generic[ModelType]):
 
     def delete_soft(self, session: Session, id: int) -> int:
         """软删除 by id"""
-        return self.update(session, id, {"is_delete": True})
+        return self.update_by_id(session, id, {"is_delete": True})
 
     def delete_by_condition(
         self, session: Session, condition: ColumnElement[bool]

@@ -8,6 +8,7 @@ class MatchStrategy(str, enum.Enum):
     PREFIX = "prefix"
     SUFFIX = "suffix"
     REGEX = "regex"
+    ALWAYS = "always"
 
 
 STR_LAST_NUM_PATTERN = re.compile(r"(\d+)(?=\D*$)")
@@ -25,7 +26,9 @@ def match_by_strategy(pattern: str, string: str, strategy: str) -> bool:
         return string.lower().endswith(pattern.lower())
     if strategy == MatchStrategy.REGEX:
         return re.match(pattern, string) is not None
-    raise NotImplementedError("未定义错误")
+    if strategy == MatchStrategy.ALWAYS:
+        return True
+    raise TypeError("未定义错误")
 
 
 def match_str_last_num(string: str):

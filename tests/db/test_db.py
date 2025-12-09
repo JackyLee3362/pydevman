@@ -79,8 +79,8 @@ class Service:
         # expire_on_commit=False 主要是 DetachedInstanceError
         #  由于会话关闭后，对象返回，再次读取对象会 Error
         with Session(self.engine, expire_on_commit=False) as session, session.begin():
-            user = self.user_mapper.get_by_condition(session, User.id == user_id)
-            order = self.order_mapper.get_by_condition(session, Order.id == order_id)
+            user = self.user_mapper.select_by_condition(session, User.id == user_id)
+            order = self.order_mapper.select_by_condition(session, Order.id == order_id)
         return user, order
 
     def insert_user_order(self, user: User, order: Order):
@@ -118,10 +118,8 @@ def test_upsert():
     user2 = User(name="alice", age=13)
     with Session(db.engine) as session, session.begin():
         mapper.upsert_by(session, "name", user1)
-        session.commit()
     with Session(db.engine) as session, session.begin():
         mapper.upsert_by(session, "name", user2)
-        session.commit()
     with Session(db.engine) as session, session.begin():
-        po = mapper.get(session, id=1)
+        po = mapper.select_by_id(session, id=1)
         assert po.age == 13
