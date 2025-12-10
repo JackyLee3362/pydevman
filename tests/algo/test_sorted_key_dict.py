@@ -1,4 +1,4 @@
-from pydevman.common.sorted_key_dict import SortedKeyDict
+from pydevman.algo.sorted_key_dict import SortedKeyDict
 
 
 def test_sorted():

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from pydevman.common.sorted_key_dict import SortedKeyDict
+from pydevman.algo.sorted_key_dict import SortedKeyDict
 from pydevman.string.match import MatchStrategy, match_by_strategy
 
 
