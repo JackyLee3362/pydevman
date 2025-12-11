@@ -76,7 +76,7 @@ def api_stat_prefix(root: Path, ext: list[str], max_depth: int = 16):
 
 
 def api_stat_info_in_dir(path: Path) -> tuple[int, int]:
-    assert path.is_dir()
+    assert_path_exist_and_is_dir(path)
     file_cnt = dir_cnt = other_cnt = 0
     for item in path.iterdir():
         if item.is_file():

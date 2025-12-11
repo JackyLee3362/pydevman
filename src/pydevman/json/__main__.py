@@ -5,7 +5,13 @@ import typer
 from rich.console import Console
 from typing_extensions import Annotated
 
-from pydevman.args import ARG_DST, ARG_FORCE_COVER_DST, ARG_QUIET, ARG_SRC, ARG_VERBOSE
+from pydevman.args import (
+    ARG_DST,
+    ARG_FORCE,
+    ARG_QUIET,
+    ARG_SRC,
+    ARG_VERBOSE,
+)
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
 from pydevman.json.api import (
     api_dump_json_to_str,
@@ -28,13 +34,16 @@ ARG_DEL_HTML_TAG = Annotated[
 ]
 
 
-@app.command("parse", help="解析字符串为 json(默认递归去转义)")
+@app.command(
+    "parse",
+    help="解析字符串为 json(默认递归去转义), src 为空默认读取剪贴板, dst 为空时默认输出剪贴板, force 表示是否强制覆盖",
+)
 def recursive_parse_json(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
     recursive: ARG_RECURSIVE = False,
     del_tag: ARG_DEL_HTML_TAG = False,
-    force: ARG_FORCE_COVER_DST = False,
+    force: ARG_FORCE = False,
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
 ):
@@ -64,7 +73,7 @@ def recursive_parse_json(
 def format_json_inline(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
-    force: ARG_FORCE_COVER_DST = False,
+    force: ARG_FORCE = False,
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
 ):
@@ -91,7 +100,7 @@ def format_json_inline(
 def dump_json_to_str(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
-    force: ARG_FORCE_COVER_DST = False,
+    force: ARG_FORCE = False,
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
 ):

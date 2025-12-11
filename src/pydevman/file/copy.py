@@ -14,7 +14,7 @@ from pathlib import Path
 
 from send2trash import send2trash
 
-from pydevman.file.common import assert_path_exist_and_is_dir
+from pydevman.file.common import assert_path_not_exist, assert_path_exist_and_is_dir
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +35,7 @@ def copytree(src: Path, dst: Path, dry: bool):
     if dst.exists():
         log.debug(f"目标文件夹='{dst}': 删除到回收站")
         send2trash(dst)
+        # 删除是异步的，可能
     try:
         shutil.copytree(src, dst, dirs_exist_ok=True)
         log.debug(f"目标文件夹='{dst}': 复制完成")
@@ -52,7 +53,8 @@ def copytree_struct(src: Path, dst: Path, max_depth: int = 4, file: bool = True)
         file (bool, optional): 是否复制文件. 默认是 True.
     """
     # 校验：防止 dst 覆盖 src
-    assert src.exists(), f"{src} 源文件夹不存在，请检查路径"
+    assert_path_exist_and_is_dir(src)
+    assert_path_not_exist(dst)
     assert not dst.exists(), f"{dst} 目标文件夹已存在，请检查路径"
     # 创建空目录
     dst.mkdir(parents=True)

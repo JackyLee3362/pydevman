@@ -3,18 +3,12 @@ from pathlib import Path
 import typer
 from typing_extensions import Annotated
 
-ARG_SRC = Annotated[
-    Path, typer.Argument(help="源文件路径", show_default="默认从剪贴板读取")
-]
-ARG_DST = Annotated[
-    Path, typer.Argument(help="目标文件路径", show_default="默认输出到剪贴板")
-]
+ARG_SRC = Annotated[Path, typer.Argument(help="源文件路径")]
+ARG_DST = Annotated[Path, typer.Argument(help="目标文件路径")]
 
-ARG_FORCE_COVER_DST = Annotated[
+ARG_FORCE = Annotated[
     bool,
-    typer.Option(
-        "--force", "-f", help="是否强制覆盖 DST 目录", show_default="默认不强制"
-    ),
+    typer.Option("--force", "-f", help="是否强制"),
 ]
 
 ARG_VERBOSE = Annotated[

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Generator
 
-from pydevman.file.common import assert_path_exist_and_is_dir, is_dot_path
+from pydevman.file.common import _path_is_dot_path, assert_path_exist_and_is_dir
 
 
 def iter_dirs(path: Path, max_depth: int) -> Generator[Path, None, None]:
@@ -28,6 +28,6 @@ def iter_files(path: Path, max_depth: int) -> Generator[Path, None, None]:
             continue
         if _path.is_file():
             yield _path
-        elif _path.is_dir() and not is_dot_path(_path):
+        elif _path.is_dir() and not _path_is_dot_path(_path):
             for item in _path.iterdir():
                 q.append((item, depth + 1))
