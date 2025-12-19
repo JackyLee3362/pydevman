@@ -59,6 +59,10 @@ class DefaultHandler(AbstractHandler):
         log.debug("handle float...")
         return arg
 
+    def handle_bool(self, arg):
+        log.debug("handle bool...")
+        return arg
+
     def handle_none(self, arg):
         log.debug("handle none...")
         return arg

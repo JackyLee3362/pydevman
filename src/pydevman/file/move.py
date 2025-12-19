@@ -5,7 +5,7 @@ from pathlib import Path
 from pydevman.file.common import (
     assert_path_exist_and_is_dir,
     assert_path_exist_and_is_file,
-    assert_path_not_exist_and_is_file,
+    assert_path_not_exist,
 )
 
 log = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 def move_file_to_dst_path(src: Path, dst: Path, *, dry: bool):
     assert_path_exist_and_is_file(src)
-    assert_path_not_exist_and_is_file(dst)
+    assert_path_not_exist(dst)
     log.debug(f"(dry={dry})移动文件({not dry}: {src} -> {dst}")
     try:
         if not dry:

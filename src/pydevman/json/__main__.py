@@ -30,7 +30,7 @@ ARG_RECURSIVE = Annotated[
 
 ARG_DEL_HTML_TAG = Annotated[
     bool,
-    typer.Option("--del-tag", help="是否递归去转义", show_default="默认递归"),
+    typer.Option("--del-tag", help="是否去除标签", show_default="默认不去除"),
 ]
 
 
