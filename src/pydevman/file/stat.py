@@ -1,78 +1,66 @@
 import logging
-from abc import ABC, abstractmethod
 from collections import OrderedDict
 from pathlib import Path
+from typing import Iterable, Union
 
-from pydevman.file.common import assert_path_exist_and_is_dir
-from pydevman.file.iter import iter_dirs, iter_files
-from pydevman.helper.table import build_table
+from pydevman.file.common import assert_path_exist_and_is_dir, path_is_dot_path
+from pydevman.file.iter import get_line_for_file, iter_dirs, iter_files
 
 log = logging.getLogger(__name__)
 
 
-class BaseStat(ABC):
-    def __init__(self, max_depth: int = 16):
-        self._max_depth = max_depth
-        self.res = {}
-
-    @abstractmethod
-    def handle_path(self, path: Path) -> bool: ...
-
-    # 遍历
-    def stat_paths(self, root: Path):
-        for file in iter_files(root, self._max_depth):
-            if self.handle_path(file) is False:
-                break
-
-    def build_table(self): ...
-
-
-class SuffixStat(BaseStat):
-    def __init__(self, suffix_set: set[str], max_cnt: int = 4096, max_depth: int = 16):
-        super().__init__(max_depth=max_depth)
-        self._max_cnt = max_cnt
-        self._cur_cnt = 0
-        self._suffix_set = suffix_set
-        self._res = {}
-
-    def _match_suffix(self, suffix: str):
-        if self._suffix_set is None:
-            return True
-        return suffix in self._suffix_set
-
-    def handle_path(self, path):
-        self._cur_cnt += 1
-        if self._cur_cnt > self._max_cnt:
-            return False
-        _suffix = path.suffix
-        if path.is_file() and self._match_suffix(_suffix):
-            cur = self._res.setdefault(_suffix, 0)
-            self._res[_suffix] = cur + 1
-        return True
-
-    def build_table(self):
-        header = ["文件类型", "数量"]
-        rows = [(k, str(v)) for k, v in self._res.items()]
-        rows.append(("TOTAL", str(self._cur_cnt)))
-        table = build_table("根据 SUFFIX 计数", header, rows)
-        return table
-
-
-def api_stat_prefix(root: Path, ext: list[str], max_depth: int = 16):
+def api_stat_suffix(root: Path, suffix: list[str], max_depth: int = 16):
     res = {}
-    ext_set = set(e.lower() for e in ext)
+    suffix_set = _to_set(suffix)
 
     for file in iter_files(root, max_depth):
-        file: Path
-        if file.suffix.lower() in ext_set:
-            prefix = file.stem.split("_")[0]
-            val = res.get(prefix, 0)
-            res[prefix] = val + 1
+        _suffix = file.suffix
+        if _suffix in suffix_set:
+            continue
+        val = res.get(_suffix, 0)
+        res[_suffix] = val + 1
 
-    header = ["前缀 PREFIX", "数目"]
     rows = [(k, str(v)) for k, v in res.items()]
-    table = build_table("根据目录统计文件", header, rows)
-    log.info(table)
+    return rows
+
+
+def api_stat_prefix(root: Path, prefix: list[str], max_depth: int = 16):
+    res = {}
+    prefix_set = set(e.lower() for e in prefix)
+
+    for file in iter_files(root, max_depth):
+        if file.suffix.lower() not in prefix_set:
+            continue
+        prefix = file.stem.split("_")[0]
+        val = res.get(prefix, 0)
+        res[prefix] = val + 1
+
+    rows = [(k, str(v)) for k, v in res.items()]
+    return rows
+
+
+def api_stat_line(root: Path, suffix: list[str] = None, max_depth: int = 16):
+    res = []
+    ext_set = set()
+    if isinstance(suffix, str):
+        ext_set = set([suffix])
+    elif isinstance(suffix, list):
+        ext_set = set(e.lower() for e in suffix)
+
+    for file in iter_files(root, max_depth):
+        if file.suffix.lower() not in ext_set:
+            continue
+        line = get_line_for_file(file)
+        res.append((file.stem, line))
+    res.sort(key=lambda x: x[1], reverse=True)
+    limit_res = res[: min(len(res), max_depth)]
+    total_cnt = len(res)
+    total_line_cnt = sum([val for _, val in res])
+
+    rows = [(k, str(v)) for k, v in limit_res]
+    rows.append(("总文件数", str(total_cnt)))
+    rows.append(("平均行数", str(round(total_line_cnt / total_cnt, 2))))
+    return rows
 
 
 def api_stat_info_in_dir(path: Path) -> tuple[int, int]:
@@ -88,8 +76,10 @@ def api_stat_info_in_dir(path: Path) -> tuple[int, int]:
     return file_cnt, dir_cnt, other_cnt
 
 
-def api_stat_cnt(root: Path, max_depth: int = 16):
+def api_stat_cnt(root: Path, filter_dir: list[str] = None, max_depth: int = 16):
     res: dict[Path, tuple] = OrderedDict()
+    # todo: 把 dot path 加入其中
+    filter_dir = _to_set(filter_dir, set([".", "__"]))
 
     def adder(path: Path, f, d, o):
         parts = path.relative_to(root).parts
@@ -98,17 +88,17 @@ def api_stat_cnt(root: Path, max_depth: int = 16):
             _f, _d, _o = res.get(_path, (0, 0, 0))
             res[_path] = (f + _f, d + _d, o + _o)
 
-    for dir in iter_dirs(root, max_depth=max_depth):
+    for dir in iter_dirs(root, filter_dir, max_depth=max_depth):
         f, d, o = api_stat_info_in_dir(dir)
+        if path_is_dot_path(dir):
+            continue
         res[dir] = (f, d, o)
         adder(dir, f, d, o)
-    header = ["路径", "文件数", "目录数", "其他文件"]
     rows = [
         (str(k.relative_to(root)), str(f), str(d), str(o))
         for k, (f, d, o) in res.items()
     ]
-    table = build_table("根据目录统计文件", header, rows)
-    log.info(table)
+    return rows
 
 
 def stat(src: Path, max_depth: int = 4):
@@ -141,27 +131,12 @@ def stat(src: Path, max_depth: int = 4):
     return src, total_file, total_folder
 
 
-class CounterStat(BaseStat):
-    def __init__(self, suffix_set: set[str], max_cnt: int = 4096, max_depth: int = 16):
-        super().__init__(max_depth=max_depth)
-        self._max_cnt = max_cnt
-        self._cur_cnt = 0
-        self._suffix_set = suffix_set
-        self._res = {}
-
-    def handle_path(self, path):
-        self._cur_cnt += 1
-        if self._cur_cnt > self._max_cnt:
-            return False
-        _suffix = path.suffix
-        if path.is_file():
-            cur = self._res.setdefault(_suffix, 0)
-            self._res[_suffix] = cur + 1
-        return True
-
-    def build_table(self):
-        header = ["文件类型", "数量"]
-        rows = [(k, str(v)) for k, v in self._res.items()]
-        rows.append(("TOTAL", str(self._cur_cnt)))
-        table = build_table("根据 SUFFIX 计数", header, rows)
-        return table
+def _to_set(arg: Union[str, Iterable, None], default_set=None):
+    _default_set = set(default_set)
+    if arg is None:
+        return _default_set
+    elif isinstance(arg, str):
+        return _default_set.union([arg])
+    elif isinstance(arg, Iterable):
+        return _default_set.union(arg)
+    raise TypeError("类型错误")

@@ -11,11 +11,17 @@ import inquirer
 import typer
 from rich.console import Console
 
-from pydevman.args import ARG_SRC
+from pydevman.args import ARG_DIR_FILTER_PREFIX, ARG_SRC
 from pydevman.file.copy import copytree
 from pydevman.file.delete import del_dir, del_empty_dir_recursive
 from pydevman.file.move import move_match_pattern_file, move_prefix_ext
-from pydevman.file.stat import SuffixStat, api_stat_cnt, api_stat_prefix
+from pydevman.file.stat import (
+    api_stat_cnt,
+    api_stat_line,
+    api_stat_prefix,
+    api_stat_suffix,
+)
+from pydevman.helper.table import api_build_table
 from pydevman.query.query import QueryCache
 
 console = Console()
@@ -25,34 +31,52 @@ query_cache = QueryCache()
 log = logging.getLogger(__name__)
 
 
+@app.command("stat-cnt", help="统计: 递归统计文件夹中每个文件的数目")
+def stat_cnt_controller(src: ARG_SRC, filter_dir: ARG_DIR_FILTER_PREFIX = None):
+    console.rule("根据文件夹统计递归文件")
+    if filter_dir is None:
+        filter_dir = ["."]
+    try:
+        rows = api_stat_cnt(src.resolve(), filter_dir)
+        header = ["路径", "文件数", "目录数", "其他文件"]
+        table = api_build_table("根据目录统计文件", header, rows)
+        console.print(table)
+    except Exception as e:
+        console.print(e)
+
+
 @app.command("stat-suffix", help="统计: 根据文件后缀统计文件")
-def stat_suffix_query_interaction(src: ARG_SRC):
-    # func = "stat-suffix"
-    # src = query_list(func, "src", "请输入源文件夹目录")
-    # suffix = query_check(func, "suffix", "请输入文件名后缀(非拓展名)")
+def stat_suffix_controller(src: ARG_SRC, suffix: list[str] = None):
     console.rule("根据 suffix 文件计数")
-    # api_stat_suffix(Path(src), suffix)
-    stat = SuffixStat(None)
-    stat.stat_paths(src)
-    table = stat.build_table()
-    console.print(table)
+    try:
+        rows = api_stat_suffix(src, suffix)
+        header = ["文件类型", "数量"]
+        table = api_build_table(title="根据 SUFFIX 计数", header=header, rows=rows)
+        console.print(table)
+    except Exception as e:
+        console.print(e)
 
 
-@app.command("stat-cnt", help="统计: 统计文件夹中每个文件的数目")
-def stat_cnt_query(src: ARG_SRC):
-    # func = "stat-cnt"
-    # src = query_cache.query_list(func, "src", "请输入源文件夹目录")
-    console.rule("根据目录统计递归文件")
-    api_stat_cnt(Path(src))
-
-
-@app.command("stat-prefix", help="统计: 根据 PREFIX 统计文件")
-def stat_prefix_query(src: ARG_SRC):
-    func = "stat-prefix"
-    src = query_cache.query_list(func, "src", "请输入源文件夹目录")
-    ext = query_cache.query_check(func, "ext", "请输入文件拓展名")
+@app.command("stat-prefix", help="统计: 统计文件并根据前缀分类")
+def stat_prefix_controller(src: ARG_SRC, prefix: list[str] = None):
     console.rule("根据目录统计递归文件前缀")
-    api_stat_prefix(Path(src), ext)
+    try:
+        rows = api_stat_prefix(Path(src), prefix)
+        table = api_build_table("根据目录统计文件", ["前缀 PREFIX", "数目"], rows)
+        console.print(table)
+    except Exception as e:
+        console.print(e)
+
+
+@app.command("stat-line", help="统计: 统计目录中文件行数")
+def stat_line_for_file(src: ARG_SRC, suffix: list[str] = None, max_depth: int = 16):
+    console.rule("根据目录统计文件行数")
+    try:
+        rows = api_stat_line(src, suffix, max_depth)
+        table = api_build_table("统计文件行数", ["文件名", "行数"], rows)
+        console.print(table)
+    except Exception as e:
+        console.print(e)
 
 
 @app.command("copy-dir", help="删除: 删除 dst 文件夹内容并复制 src 内容")

@@ -5,6 +5,10 @@ from typing_extensions import Annotated
 
 ARG_SRC = Annotated[Path, typer.Argument(help="源文件路径")]
 ARG_DST = Annotated[Path, typer.Argument(help="目标文件路径")]
+ARG_FILE_SUFFIX = Annotated[list[str], typer.Argument(help="文件扩展名")]
+ARG_DIR_FILTER_PREFIX = Annotated[
+    list[str], typer.Argument(help="需要过滤的文件夹prefix，默认是dot文件夹")
+]
 
 ARG_FORCE = Annotated[
     bool,

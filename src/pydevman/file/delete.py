@@ -4,15 +4,15 @@ from pathlib import Path
 from send2trash import send2trash
 
 from pydevman.file.common import (
-    _path_is_dir_without_any_file,
     assert_path_exist_and_is_dir,
+    path_is_dir_without_any_file,
 )
 
 log = logging.getLogger(__name__)
 
 
 def del_empty_dir(path: Path, dry):
-    if not _path_is_dir_without_any_file(path):
+    if not path_is_dir_without_any_file(path):
         return
     log.debug(f"删除空目录({not dry}): 目标文件夹='{path}'")
     if not dry:

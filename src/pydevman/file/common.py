@@ -31,16 +31,16 @@ def assert_path_exist_and_is_dir(path: Path):
 
 def assert_not_exist_or_empty_dir(path: Path):
     assert_path_is_Path(path)
-    assert _path_not_exist(path) or _path_is_dir_without_any_path(path), (
+    assert _path_not_exist(path) or path_is_dir_without_any_path(path), (
         f"Expect path={path} not exist or is empty dir, actually not."
     )
 
 
-def _path_is_dir_without_any_path(path: Path) -> bool:
+def path_is_dir_without_any_path(path: Path) -> bool:
     return path.is_dir() and not any(path.iterdir())
 
 
-def _path_is_dir_without_any_file(path: Path) -> bool:
+def path_is_dir_without_any_file(path: Path) -> bool:
     # TODO 如果入口是文件，其实是有问题的
     if not path.is_dir():
         return False
@@ -49,12 +49,12 @@ def _path_is_dir_without_any_file(path: Path) -> bool:
             # Fast Fail
             return False
         # Recursively check
-        if item.is_dir() and not _path_is_dir_without_any_file(item):
+        if item.is_dir() and not path_is_dir_without_any_file(item):
             return False
     return True
 
 
-def _path_is_dot_path(path: Path) -> bool:
+def path_is_dot_path(path: Path) -> bool:
     assert_path_exist(path)
     return path.name.startswith(".")
 

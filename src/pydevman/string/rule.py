@@ -46,4 +46,4 @@ class RuleEngine:
                     matched_list.append(rule)
             if matched:
                 return matched_list
-        return matched_list
+        return []
