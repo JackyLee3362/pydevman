@@ -9,13 +9,13 @@ from pydevman.file.iter import get_line_for_file, iter_dirs, iter_files
 log = logging.getLogger(__name__)
 
 
-def api_stat_suffix(root: Path, suffix: list[str], max_depth: int = 16):
+def api_stat_by_suffix(root: Path, exclude_suffix: list[str], max_depth: int = 16):
     res = {}
-    suffix_set = _to_set(suffix)
+    excl_suffix_set = _to_set(exclude_suffix)
 
     for file in iter_files(root, max_depth):
         _suffix = file.suffix
-        if _suffix in suffix_set:
+        if _suffix in excl_suffix_set:
             continue
         val = res.get(_suffix, 0)
         res[_suffix] = val + 1
@@ -24,16 +24,15 @@ def api_stat_suffix(root: Path, suffix: list[str], max_depth: int = 16):
     return rows
 
 
-def api_stat_prefix(root: Path, prefix: list[str], max_depth: int = 16):
+def api_stat_by_prefix(root: Path, include_prefix: list[str], max_depth: int = 16):
     res = {}
-    prefix_set = set(e.lower() for e in prefix)
+    incl_prefix_set = _to_set(include_prefix)
 
     for file in iter_files(root, max_depth):
-        if file.suffix.lower() not in prefix_set:
-            continue
-        prefix = file.stem.split("_")[0]
-        val = res.get(prefix, 0)
-        res[prefix] = val + 1
+        for _prefix in incl_prefix_set:
+            if file.name.startswith(_prefix):
+                val = res.get(_prefix, 0)
+                res[_prefix] = val + 1
 
     rows = [(k, str(v)) for k, v in res.items()]
     return rows
@@ -132,11 +131,14 @@ def stat(src: Path, max_depth: int = 4):
 
 
 def _to_set(arg: Union[str, Iterable, None], default_set=None):
-    _default_set = set(default_set)
+    if default_set is None:
+        _default_set = set()
+    else:
+        _default_set = set(default_set)
     if arg is None:
         return _default_set
     elif isinstance(arg, str):
-        return _default_set.union([arg])
+        return _default_set.union([arg.lower()])
     elif isinstance(arg, Iterable):
-        return _default_set.union(arg)
+        return _default_set.union([a.lower() for a in arg])
     raise TypeError("类型错误")
