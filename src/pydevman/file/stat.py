@@ -62,7 +62,7 @@ def api_stat_line(root: Path, suffix: list[str] = None, max_depth: int = 16):
     return rows
 
 
-def api_stat_info_in_dir(path: Path) -> tuple[int, int]:
+def api_stat_cnt_in_dir(path: Path) -> tuple[int, int, int]:
     assert_path_exist_and_is_dir(path)
     file_cnt = dir_cnt = other_cnt = 0
     for item in path.iterdir():
@@ -76,11 +76,11 @@ def api_stat_info_in_dir(path: Path) -> tuple[int, int]:
 
 
 def api_stat_cnt(root: Path, filter_dir: list[str] = None, max_depth: int = 16):
-    res: dict[Path, tuple] = OrderedDict()
-    # todo: 把 dot path 加入其中
+    res: dict[Path, tuple[int, int, int]] = OrderedDict()
+    # 默认过滤 . 和 __ 文件
     filter_dir = _to_set(filter_dir, set([".", "__"]))
 
-    def adder(path: Path, f, d, o):
+    def adder(path: Path, f: int, d: int, o: int):
         parts = path.relative_to(root).parts
         for i in range(len(parts)):
             _path = root.joinpath(*parts[:i])
@@ -88,7 +88,7 @@ def api_stat_cnt(root: Path, filter_dir: list[str] = None, max_depth: int = 16):
             res[_path] = (f + _f, d + _d, o + _o)
 
     for dir in iter_dirs(root, filter_dir, max_depth=max_depth):
-        f, d, o = api_stat_info_in_dir(dir)
+        f, d, o = api_stat_cnt_in_dir(dir)
         if path_is_dot_path(dir):
             continue
         res[dir] = (f, d, o)

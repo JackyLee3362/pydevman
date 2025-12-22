@@ -3,16 +3,26 @@ from pathlib import Path
 import typer
 from typing_extensions import Annotated
 
+# common argument
+ARG_SRC_OR_FROM_CLIP = Annotated[
+    Path, typer.Argument(help="源文件路径，不指定则从剪贴板读取")
+]
+ARG_DST_OR_TO_CLIP = Annotated[
+    Path, typer.Argument(help="源文件路径，不指定则粘贴至剪贴板")
+]
 ARG_SRC = Annotated[Path, typer.Argument(help="源文件路径")]
 ARG_DST = Annotated[Path, typer.Argument(help="目标文件路径")]
-ARG_FILE_SUFFIX = Annotated[list[str], typer.Argument(help="文件扩展名")]
 
-ARG_DIR_FILTER_PREFIX = Annotated[
-    list[str], typer.Option(help="需要过滤的文件夹prefix，默认是dot文件夹")
+# common option
+OPT_MAX_DEPTH = Annotated[int, typer.Option(help="遍历最大深度")]
+OPT_FILE_SUFFIX = Annotated[list[str], typer.Argument(help="文件扩展名")]
+OPT_FILE_PREFIX = Annotated[list[str], typer.Argument(help="文件前缀")]
+OPT_DIR_FILTER_PREFIX = Annotated[
+    list[str], typer.Option(help="需要过滤的文件夹prefix")
 ]
-ARG_DRY_RUN = Annotated[bool, typer.Option(help="是否 DRY-RUN 模式")]
+OPT_DRY_RUN = Annotated[bool, typer.Option(help="是否 DRY-RUN 模式")]
 
-ARG_FORCE = Annotated[
+OPT_FORCE = Annotated[
     bool,
     typer.Option("--force", "-f", help="是否强制"),
 ]

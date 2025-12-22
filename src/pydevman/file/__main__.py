@@ -10,7 +10,15 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from pydevman.args import ARG_DIR_FILTER_PREFIX, ARG_DRY_RUN, ARG_DST, ARG_SRC
+from pydevman.args import (
+    ARG_DST,
+    ARG_SRC,
+    OPT_DIR_FILTER_PREFIX,
+    OPT_DRY_RUN,
+    OPT_FILE_PREFIX,
+    OPT_FILE_SUFFIX,
+    OPT_MAX_DEPTH,
+)
 from pydevman.file.copy import copytree
 from pydevman.file.delete import del_dir, del_empty_dir_recursive
 from pydevman.file.move import move_match_pattern_file, move_prefix_ext
@@ -21,29 +29,29 @@ from pydevman.file.stat import (
     api_stat_line,
 )
 from pydevman.helper.table import api_build_table
-from pydevman.query.query import QueryCache
 
 console = Console()
 app = typer.Typer()
-query_cache = QueryCache()
 
 log = logging.getLogger(__name__)
 
 
-@app.command("stat-cnt", help="统计: 统计文件夹中路径数量")
-def stat_cnt_controller(src: ARG_SRC, filter_dir: ARG_DIR_FILTER_PREFIX = None):
-    console.rule("统计文件夹中路径数量")
+@app.command("stat-cnt", rich_help_panel="统计")
+def cmd_stat_cnt(src: ARG_SRC, filter_dir: OPT_DIR_FILTER_PREFIX = None):
+    """统计文件夹中路径数量"""
+    console.rule("统计文件夹中文件、文件夹数量")
     try:
         rows = api_stat_cnt(src.resolve(), filter_dir)
-        header = ["路径", "文件数", "目录数", "其他文件"]
+        header = ["路径", "文件数", "文件夹数", "其他文件"]
         table = api_build_table("根据目录统计文件", header, rows)
         console.print(table)
     except Exception:
         console.print_exception()
 
 
-@app.command("stat-suffix", help="统计: 根据文件后缀统计文件")
-def stat_suffix_controller(src: ARG_SRC, suffix: list[str] = None):
+@app.command("stat-suffix", rich_help_panel="统计")
+def cmd_stat_suffix(src: ARG_SRC, suffix: OPT_FILE_SUFFIX = None):
+    """根据文件后缀统计文件"""
     console.rule("根据文件后缀统计文件")
     try:
         rows = api_stat_by_suffix(src, suffix)
@@ -54,21 +62,25 @@ def stat_suffix_controller(src: ARG_SRC, suffix: list[str] = None):
         console.print_exception()
 
 
-@app.command("stat-prefix", help="统计: 统计文件并根据前缀分类")
-def stat_prefix_controller(src: ARG_SRC, prefix: list[str] = None):
+@app.command("stat-prefix", rich_help_panel="统计")
+def cmd_stat_prefix(src: ARG_SRC, prefix: OPT_FILE_PREFIX = None):
+    """统计文件并根据前缀分类"""
     console.rule("统计文件并根据前缀分类")
     try:
         rows = api_stat_by_prefix(Path(src), prefix)
         header = ["前缀 PREFIX", "数目"]
-        table = api_build_table("根据目录统计文件", header, rows)
+        table = api_build_table("根据文件夹统计文件", header, rows)
         console.print(table)
     except Exception:
         console.print_exception()
 
 
-@app.command("stat-line", help="统计: 统计目录中文件行数")
-def stat_line_for_file(src: ARG_SRC, suffix: list[str] = None, max_depth: int = 16):
-    console.rule("根据目录统计文件行数")
+@app.command("stat-line", rich_help_panel="统计")
+def cmd_stat_line_for_file(
+    src: ARG_SRC, suffix: OPT_FILE_SUFFIX = None, max_depth: OPT_MAX_DEPTH = 16
+):
+    """统计路径下所有文件行数，并按降序排列"""
+    console.rule("根据文件夹统计文件行数")
     try:
         rows = api_stat_line(src, suffix, max_depth)
         header = ["文件名", "行数"]
@@ -78,8 +90,9 @@ def stat_line_for_file(src: ARG_SRC, suffix: list[str] = None, max_depth: int = 
         console.print_exception()
 
 
-# @app.command("copy-dir", help="删除: 删除 dst 文件夹内容并复制 src 内容")
-def copy_dir_query(src: ARG_SRC, dst: ARG_DST, dry: ARG_DRY_RUN = True):
+# @app.command("copy-dir", rich_help_panel="删除")
+def cmd_copy_dir_query(src: ARG_SRC, dst: ARG_DST, dry: OPT_DRY_RUN = True):
+    """复制源路径至目标路径"""
     console.rule("复制文件夹 SRC -> DST")
     console.rule("高危操作，请谨慎操作⚠️")
     console.log(f"源文件夹='{src}' -> 目标文件夹='{dst}'")
@@ -89,8 +102,9 @@ def copy_dir_query(src: ARG_SRC, dst: ARG_DST, dry: ARG_DRY_RUN = True):
         console.print_exception()
 
 
-# @app.command("del-dir", help="删除: 删除 dst 文件夹内容到回收站")
-def del_dir_query(dst: ARG_DST, dry: ARG_DRY_RUN = True):
+# @app.command("del-dir", rich_help_panel="删除")
+def cmd_del_dir_query(dst: ARG_DST, dry: OPT_DRY_RUN = True):
+    """删除 dst 文件夹内容到回收站"""
     console.rule("删除文件夹内容")
     try:
         del_dir(Path(dst), dry)
@@ -98,8 +112,9 @@ def del_dir_query(dst: ARG_DST, dry: ARG_DRY_RUN = True):
         console.print_exception()
 
 
-# @app.command("del-empty-dir", help="删除: 删除目录中的空文件夹")
-def del_empty_dir_query(dst: ARG_DST, dry: ARG_DRY_RUN = True):
+# @app.command("del-empty-dir", rich_help_panel="删除")
+def cmd_del_empty_dir_query(dst: ARG_DST, dry: OPT_DRY_RUN = True):
+    """删除目录中的空文件夹"""
     console.rule("删除空文件夹")
     try:
         del_empty_dir_recursive(dst, dry)
@@ -107,25 +122,27 @@ def del_empty_dir_query(dst: ARG_DST, dry: ARG_DRY_RUN = True):
         console.print_exception()
 
 
-# @app.command("move-prefix-ext", help="移动: 按照文件末尾移动文件")
-def move_prefix_ext_query(
+# @app.command("move-prefix-ext", rich_help_panel="移动")
+def cmd_move_prefix_ext_query(
     src: ARG_SRC,
     dst: ARG_DST,
     prefix: list[str],
-    ext: list[str],
-    dry: ARG_DRY_RUN = True,
+    suffix: list[str],
+    dry: OPT_DRY_RUN = True,
 ):
+    """按照文件末尾移动文件"""
     console.rule("移动: 按照文件末尾移动文件")
     try:
-        move_prefix_ext(src, dst, prefix=re.compile(prefix, re.I), ext=ext, dry=dry)
+        move_prefix_ext(src, dst, prefix=re.compile(prefix, re.I), ext=suffix, dry=dry)
     except Exception:
         console.print_exception()
 
 
-# @app.command("move-pattern-dst", help="移动: 将文件移动到根目录")
-def move_pattern_dst_query(
-    src: ARG_SRC, dst: ARG_DST, pattern: str, dry: ARG_DRY_RUN = True
+# @app.command("move-pattern-dst", rich_help_panel="移动")
+def cmd_move_pattern_dst_query(
+    src: ARG_SRC, dst: ARG_DST, pattern: str, dry: OPT_DRY_RUN = True
 ):
+    """将文件移动到根目录"""
     console.rule("移动: 将文件移动到根目录")
     try:
         move_match_pattern_file(src, dst, re.compile(pattern), dry)

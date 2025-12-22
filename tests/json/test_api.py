@@ -1,6 +1,6 @@
 from rich.console import Console
 
-from pydevman.json.api import api_format_json_inline, api_parse_str_to_json
+from pydevman.json.api import api_parse_str_to_json
 
 console = Console()
 
@@ -18,13 +18,10 @@ def test_parse_str_list():
 
 
 def test_parse_recursive():
-    api_parse_str_to_json(
-        r'{"json-str": "{\"foo\":\"bar\"}", "normal-str": "foobar", "boolean": true, "integer": 200, "float": 1.1, "list": [true, 2]}',
-        recursive=True,
-        del_html_tag=False,
-    )
+    s = r'{"json-str": "{\"foo\":\"bar\"}", "normal-str": "foobar", "boolean": true, "integer": 200, "float": 1.1, "list": [true, 2]}'
+    api_parse_str_to_json(s, recursive=True)
 
 
 def test_inline():
     s = r'{"list": [true, "foo", 2]}'
-    api_format_json_inline(s)
+    api_parse_str_to_json(s, inline=True)
