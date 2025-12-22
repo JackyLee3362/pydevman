@@ -38,6 +38,7 @@ ARG_INLINE = Annotated[
 ]
 
 ARG_PREFIX = Annotated[list[str], typer.Option("--prefix", help="过滤的字段前缀")]
+ARG_SUFFIX = Annotated[list[str], typer.Option("--suffix", help="过滤的字段后缀")]
 
 
 @app.command("parse")
@@ -48,6 +49,7 @@ def cmd_recursive_parse_json(
     del_tag: ARG_DEL_HTML_TAG = False,
     inline: ARG_INLINE = False,
     prefix: ARG_PREFIX = None,
+    suffix: ARG_SUFFIX = None,
     force: OPT_FORCE = False,
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
@@ -61,7 +63,9 @@ def cmd_recursive_parse_json(
     dump_text = None
     try:
         ori_text = from_clipboard_or_file(src)
-        parse_text = api_parse_str_to_json(ori_text, recursive, del_tag, prefix)
+        parse_text = api_parse_str_to_json(
+            ori_text, recursive=recursive, del_tag=del_tag, prefix=prefix, suffix=suffix
+        )
         dump_text = api_dump_json(parse_text, inline)
         to_clipboard_or_file(dst, dump_text, force, quiet)
         console.print_json(dump_text)

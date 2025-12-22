@@ -38,14 +38,21 @@ class AbstractHandler(ABC):
     def handle(self, arg): ...
 
 
-class DefaultShallowHandler(AbstractHandler):
+class DefaultHandler(AbstractHandler):
     def handle_dict(self, arg):
         log.debug("handle dict...")
-        return arg
+        _di = {}
+        for k, v in arg.items():
+            _di[k] = self.handle(v)
+        return _di
 
     def handle_list(self, arg):
         log.debug("handle list...")
-        return arg
+        _list = []
+        for _, item in enumerate(arg):
+            tmp = self.handle(item)
+            _list.append(tmp)
+        return _list
 
     def handle_str(self, arg):
         log.debug("handle str...")
@@ -90,22 +97,7 @@ class DefaultShallowHandler(AbstractHandler):
             )
 
 
-class DefaultDeepHandler(DefaultShallowHandler):
-    def handle_dict(self, arg):
-        _di = {}
-        for k, v in arg.items():
-            _di[k] = self.handle(v)
-        return _di
-
-    def handle_list(self, arg):
-        _list = []
-        for _, item in enumerate(arg):
-            tmp = self.handle(item)
-            _list.append(tmp)
-        return _list
-
-
-class RecursiveHandler(DefaultDeepHandler):
+class RecursiveHandler(DefaultHandler):
     """递归解析,参数为 dict, list, str, int, float, None 中的一种"""
 
     def handle_str(self, arg) -> Union[dict, list, str, int, float, None]:
@@ -118,19 +110,35 @@ class RecursiveHandler(DefaultDeepHandler):
         return deep_parsed
 
 
-class DelHtmlTagHandler(DefaultDeepHandler):
+class DelHtmlTagHandler(DefaultHandler):
     def handle_str(self, arg):
         import bs4
 
         return bs4.BeautifulSoup(arg, "html.parser").get_text()
 
 
-class FilterKeyHandler(DefaultDeepHandler):
+class FilterKeyByPrefixHandler(DefaultHandler):
     def __init__(self, prefix_filter: Iterable[str]):
         self._prefix = set(prefix_filter)
 
     def is_need_filter(self, s: str) -> bool:
         return any(s.startswith(p) for p in self._prefix)
+
+    def handle_dict(self, arg):
+        _di = {}
+        for k, v in arg.items():
+            if self.is_need_filter(k):
+                continue
+            _di[k] = self.handle(v)
+        return _di
+
+
+class FilterKeyBySuffixHandler(DefaultHandler):
+    def __init__(self, suffix_filter: Iterable[str]):
+        self._suffix = set(suffix_filter)
+
+    def is_need_filter(self, s: str) -> bool:
+        return any(s.endswith(p) for p in self._suffix)
 
     def handle_dict(self, arg):
         _di = {}
