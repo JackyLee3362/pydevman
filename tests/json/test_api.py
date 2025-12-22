@@ -29,6 +29,7 @@ def test_parse_del_tag():
     assert res == ["a", "123b"]
 
 
-def test_inline():
-    s = r'{"list": [true, "foo", 2]}'
-    api_parse_str_to_json(s, inline=True)
+def test_filter_key():
+    s = r'{"list": [true, "foo", 2], "key": "boo"}'
+    res = api_parse_str_to_json(s, prefix=["k"])
+    assert res == {"list": [True, "foo", 2]}

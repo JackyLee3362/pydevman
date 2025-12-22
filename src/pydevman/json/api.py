@@ -2,7 +2,12 @@ import re
 from datetime import datetime
 from typing import Union
 
-from pydevman.json.core import DelHtmlTagHandler, JsonProcessor, RecursiveHandler
+from pydevman.json.core import (
+    DelHtmlTagHandler,
+    FilterKeyHandler,
+    JsonProcessor,
+    RecursiveHandler,
+)
 
 
 def api_parse_str_to_json(
@@ -10,7 +15,7 @@ def api_parse_str_to_json(
     *,
     recursive: bool = False,
     del_tag: bool = False,
-    inline: bool = False,
+    prefix: set[str] = None,
 ) -> Union[dict, list, str, int, float]:
     # 递归解析
     processor = JsonProcessor()
@@ -18,6 +23,8 @@ def api_parse_str_to_json(
         processor.register(RecursiveHandler())
     if del_tag:
         processor.register(DelHtmlTagHandler())
+    if prefix:
+        processor.register(FilterKeyHandler(prefix))
 
     parsed = processor.process(text)
     return parsed

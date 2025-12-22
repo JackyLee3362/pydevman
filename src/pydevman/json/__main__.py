@@ -37,14 +37,17 @@ ARG_INLINE = Annotated[
     bool, typer.Option("--inline", help="是否单行输出", show_default="默认多行")
 ]
 
+ARG_PREFIX = Annotated[list[str], typer.Option("--prefix", help="过滤的字段前缀")]
+
 
 @app.command("parse")
 def cmd_recursive_parse_json(
     src: ARG_SRC_OR_FROM_CLIP = None,
     dst: ARG_DST_OR_TO_CLIP = None,
-    recur: ARG_RECURSIVE = False,
+    recursive: ARG_RECURSIVE = False,
     del_tag: ARG_DEL_HTML_TAG = False,
     inline: ARG_INLINE = False,
+    prefix: ARG_PREFIX = None,
     force: OPT_FORCE = False,
     verbose: ARG_VERBOSE = False,
     quiet: ARG_QUIET = False,
@@ -55,15 +58,13 @@ def cmd_recursive_parse_json(
     console.quiet = quiet
     if verbose:
         config_log(logging.DEBUG)
-    dump_content = None
+    dump_text = None
     try:
         ori_text = from_clipboard_or_file(src)
-        parse_text = api_parse_str_to_json(
-            ori_text, recursive=recur, del_tag=del_tag, inline=inline
-        )
-        dump_content = api_dump_json(parse_text, inline)
-        to_clipboard_or_file(dst, dump_content, force, quiet)
-        console.print_json(dump_content)
+        parse_text = api_parse_str_to_json(ori_text, recursive, del_tag, prefix)
+        dump_text = api_dump_json(parse_text, inline)
+        to_clipboard_or_file(dst, dump_text, force, quiet)
+        console.print_json(dump_text)
     except AssertionError as e:
         console.print("断言错误", e)
     except json.JSONDecodeError as e:

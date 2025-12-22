@@ -7,7 +7,7 @@ Description: 递归解析 json 代码
 import json
 import logging
 from abc import ABC, abstractmethod
-from typing import Union
+from typing import Iterable, Union
 
 log = logging.getLogger(__name__)
 
@@ -123,6 +123,22 @@ class DelHtmlTagHandler(DefaultDeepHandler):
         import bs4
 
         return bs4.BeautifulSoup(arg, "html.parser").get_text()
+
+
+class FilterKeyHandler(DefaultDeepHandler):
+    def __init__(self, prefix_filter: Iterable[str]):
+        self._prefix = set(prefix_filter)
+
+    def is_need_filter(self, s: str) -> bool:
+        return any(s.startswith(p) for p in self._prefix)
+
+    def handle_dict(self, arg):
+        _di = {}
+        for k, v in arg.items():
+            if self.is_need_filter(k):
+                continue
+            _di[k] = self.handle(v)
+        return _di
 
 
 class JsonProcessor:
