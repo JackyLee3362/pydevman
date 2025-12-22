@@ -38,7 +38,7 @@ class AbstractHandler(ABC):
     def handle(self, arg): ...
 
 
-class DefaultHandler(AbstractHandler):
+class DefaultShallowHandler(AbstractHandler):
     def handle_dict(self, arg):
         log.debug("handle dict...")
         return arg
@@ -90,9 +90,7 @@ class DefaultHandler(AbstractHandler):
             )
 
 
-class RecursiveHandler(DefaultHandler):
-    """递归解析,参数为 dict, list, str, int, float, None 中的一种"""
-
+class DefaultDeepHandler(DefaultShallowHandler):
     def handle_dict(self, arg):
         _di = {}
         for k, v in arg.items():
@@ -106,6 +104,10 @@ class RecursiveHandler(DefaultHandler):
             _list.append(tmp)
         return _list
 
+
+class RecursiveHandler(DefaultDeepHandler):
+    """递归解析,参数为 dict, list, str, int, float, None 中的一种"""
+
     def handle_str(self, arg) -> Union[dict, list, str, int, float, None]:
         try:
             # 如果可以被解析
@@ -116,7 +118,7 @@ class RecursiveHandler(DefaultHandler):
         return deep_parsed
 
 
-class DelHtmlTagHandler(DefaultHandler):
+class DelHtmlTagHandler(DefaultDeepHandler):
     def handle_str(self, arg):
         import bs4
 

@@ -23,6 +23,12 @@ def test_parse_recursive():
     api_parse_str_to_json(s, recursive=True)
 
 
+def test_parse_del_tag():
+    s = '["a", "123<p>b</p>"]'
+    res = api_parse_str_to_json(s, del_tag=True)
+    assert res == ["a", "123b"]
+
+
 def test_inline():
     s = r'{"list": [true, "foo", 2]}'
     api_parse_str_to_json(s, inline=True)
