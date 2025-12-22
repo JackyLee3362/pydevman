@@ -13,10 +13,11 @@ from rich.console import Console
 from pydevman.args import (
     ARG_DST,
     ARG_SRC,
-    OPT_DIR_FILTER_PREFIX,
     OPT_DRY_RUN,
     OPT_FILE_PREFIX,
     OPT_FILE_SUFFIX,
+    OPT_FILTER_DIR_PREFIX,
+    OPT_FILTER_DIR_SUFFIX,
     OPT_MAX_DEPTH,
 )
 from pydevman.file.copy import copytree
@@ -37,11 +38,18 @@ log = logging.getLogger(__name__)
 
 
 @app.command("stat-cnt", rich_help_panel="统计")
-def cmd_stat_cnt(src: ARG_SRC, filter_dir: OPT_DIR_FILTER_PREFIX = None):
+def cmd_stat_cnt(
+    src: ARG_SRC,
+    filter_dir_prefix: OPT_FILTER_DIR_PREFIX = None,
+    filter_dir_suffix: OPT_FILTER_DIR_SUFFIX = None,
+    max_depth: OPT_MAX_DEPTH = 4,
+):
     """统计文件夹中路径数量"""
     console.rule("统计文件夹中文件、文件夹数量")
     try:
-        rows = api_stat_cnt(src.resolve(), filter_dir)
+        rows = api_stat_cnt(
+            src.resolve(), filter_dir_prefix, filter_dir_suffix, max_depth
+        )
         header = ["路径", "文件数", "文件夹数", "其他文件"]
         table = api_build_table("根据目录统计文件", header, rows)
         console.print(table)

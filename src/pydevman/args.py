@@ -17,8 +17,11 @@ ARG_DST = Annotated[Path, typer.Argument(help="目标文件路径")]
 OPT_MAX_DEPTH = Annotated[int, typer.Option(help="遍历最大深度")]
 OPT_FILE_SUFFIX = Annotated[list[str], typer.Argument(help="文件扩展名")]
 OPT_FILE_PREFIX = Annotated[list[str], typer.Argument(help="文件前缀")]
-OPT_DIR_FILTER_PREFIX = Annotated[
-    list[str], typer.Option(help="需要过滤的文件夹prefix")
+OPT_FILTER_DIR_PREFIX = Annotated[
+    list[str], typer.Option("--prefix", help="需要过滤的文件夹前缀")
+]
+OPT_FILTER_DIR_SUFFIX = Annotated[
+    list[str], typer.Option("--suffix", help="需要过滤的文件夹后缀")
 ]
 OPT_DRY_RUN = Annotated[bool, typer.Option(help="是否 DRY-RUN 模式")]
 

@@ -75,10 +75,16 @@ def api_stat_cnt_in_dir(path: Path) -> tuple[int, int, int]:
     return file_cnt, dir_cnt, other_cnt
 
 
-def api_stat_cnt(root: Path, filter_dir: list[str] = None, max_depth: int = 16):
+def api_stat_cnt(
+    root: Path,
+    filter_dir_prefix: list[str] = None,
+    filter_dir_suffix: list[str] = None,
+    max_depth: int = 4,
+):
     res: dict[Path, tuple[int, int, int]] = OrderedDict()
     # 默认过滤 . 和 __ 文件
-    filter_dir = _to_set(filter_dir, set([".", "__"]))
+    filter_dir_prefix = _to_set(filter_dir_prefix, set([".", "__"]))
+    filter_dir_suffix = _to_set(filter_dir_suffix)
 
     def adder(path: Path, f: int, d: int, o: int):
         parts = path.relative_to(root).parts
@@ -87,9 +93,11 @@ def api_stat_cnt(root: Path, filter_dir: list[str] = None, max_depth: int = 16):
             _f, _d, _o = res.get(_path, (0, 0, 0))
             res[_path] = (f + _f, d + _d, o + _o)
 
-    for dir in iter_dirs(root, filter_dir, max_depth=max_depth):
+    for dir in iter_dirs(root, filter_dir_prefix, max_depth=max_depth):
         f, d, o = api_stat_cnt_in_dir(dir)
-        if path_is_dot_path(dir):
+        if any(dir.name.startswith(p) for p in filter_dir_suffix):
+            continue
+        if any(dir.name.endswith(s) for s in filter_dir_suffix):
             continue
         res[dir] = (f, d, o)
         adder(dir, f, d, o)
