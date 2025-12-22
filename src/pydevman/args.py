@@ -15,13 +15,13 @@ ARG_DST = Annotated[Path, typer.Argument(help="目标文件路径")]
 
 # common option
 OPT_MAX_DEPTH = Annotated[int, typer.Option(help="遍历最大深度")]
-OPT_FILE_SUFFIX = Annotated[list[str], typer.Argument(help="文件扩展名")]
-OPT_FILE_PREFIX = Annotated[list[str], typer.Argument(help="文件前缀")]
-OPT_FILTER_DIR_PREFIX = Annotated[
-    list[str], typer.Option("--prefix", help="需要过滤的文件夹前缀")
+OPT_INCLUDE_FILE_SUFFIX = Annotated[list[str], typer.Argument(help="文件扩展名")]
+OPT_INCLUDE_FILE_PREFIX = Annotated[list[str], typer.Argument(help="文件前缀")]
+OPT_EXCLUDE_DIR_PREFIX = Annotated[
+    list[str], typer.Option("--prefix", help="需要排除的文件夹前缀")
 ]
-OPT_FILTER_DIR_SUFFIX = Annotated[
-    list[str], typer.Option("--suffix", help="需要过滤的文件夹后缀")
+OPT_EXCLUDE_DIR_SUFFIX = Annotated[
+    list[str], typer.Option("--suffix", help="需要排除的文件夹后缀")
 ]
 OPT_DRY_RUN = Annotated[bool, typer.Option(help="是否 DRY-RUN 模式")]
 
@@ -30,10 +30,10 @@ OPT_FORCE = Annotated[
     typer.Option("--force", "-f", help="是否强制"),
 ]
 
-ARG_VERBOSE = Annotated[
+OPT_VERBOSE = Annotated[
     bool, typer.Option("--verbose", "-v", help="详细输出", show_default=False)
 ]
 
-ARG_QUIET = Annotated[
+OPT_QUIET = Annotated[
     bool, typer.Option("--quiet", "-q", help="静默输出", show_default=False)
 ]

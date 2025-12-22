@@ -14,10 +14,10 @@ from pydevman.args import (
     ARG_DST,
     ARG_SRC,
     OPT_DRY_RUN,
-    OPT_FILE_PREFIX,
-    OPT_FILE_SUFFIX,
-    OPT_FILTER_DIR_PREFIX,
-    OPT_FILTER_DIR_SUFFIX,
+    OPT_EXCLUDE_DIR_PREFIX,
+    OPT_EXCLUDE_DIR_SUFFIX,
+    OPT_INCLUDE_FILE_PREFIX,
+    OPT_INCLUDE_FILE_SUFFIX,
     OPT_MAX_DEPTH,
 )
 from pydevman.file.copy import copytree
@@ -40,8 +40,8 @@ log = logging.getLogger(__name__)
 @app.command("stat-cnt", rich_help_panel="统计")
 def cmd_stat_cnt(
     src: ARG_SRC,
-    filter_dir_prefix: OPT_FILTER_DIR_PREFIX = None,
-    filter_dir_suffix: OPT_FILTER_DIR_SUFFIX = None,
+    filter_dir_prefix: OPT_EXCLUDE_DIR_PREFIX = None,
+    filter_dir_suffix: OPT_EXCLUDE_DIR_SUFFIX = None,
     max_depth: OPT_MAX_DEPTH = 4,
 ):
     """统计文件夹中路径数量"""
@@ -58,7 +58,7 @@ def cmd_stat_cnt(
 
 
 @app.command("stat-suffix", rich_help_panel="统计")
-def cmd_stat_suffix(src: ARG_SRC, suffix: OPT_FILE_SUFFIX = None):
+def cmd_stat_suffix(src: ARG_SRC, suffix: OPT_INCLUDE_FILE_SUFFIX = None):
     """根据文件后缀统计文件"""
     console.rule("根据文件后缀统计文件")
     try:
@@ -71,7 +71,7 @@ def cmd_stat_suffix(src: ARG_SRC, suffix: OPT_FILE_SUFFIX = None):
 
 
 @app.command("stat-prefix", rich_help_panel="统计")
-def cmd_stat_prefix(src: ARG_SRC, prefix: OPT_FILE_PREFIX = None):
+def cmd_stat_prefix(src: ARG_SRC, prefix: OPT_INCLUDE_FILE_PREFIX = None):
     """统计文件并根据前缀分类"""
     console.rule("统计文件并根据前缀分类")
     try:
@@ -85,7 +85,7 @@ def cmd_stat_prefix(src: ARG_SRC, prefix: OPT_FILE_PREFIX = None):
 
 @app.command("stat-line", rich_help_panel="统计")
 def cmd_stat_line_for_file(
-    src: ARG_SRC, suffix: OPT_FILE_SUFFIX = None, max_depth: OPT_MAX_DEPTH = 16
+    src: ARG_SRC, suffix: OPT_INCLUDE_FILE_SUFFIX = None, max_depth: OPT_MAX_DEPTH = 16
 ):
     """统计路径下所有文件行数，并按降序排列"""
     console.rule("根据文件夹统计文件行数")

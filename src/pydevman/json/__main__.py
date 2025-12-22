@@ -8,11 +8,11 @@ from typing_extensions import Annotated
 from pydevman.args import (
     ARG_DST,
     ARG_DST_OR_TO_CLIP,
-    ARG_QUIET,
     ARG_SRC,
     ARG_SRC_OR_FROM_CLIP,
-    ARG_VERBOSE,
     OPT_FORCE,
+    OPT_QUIET,
+    OPT_VERBOSE,
 )
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
 from pydevman.json.api import api_parse_str_to_json
@@ -51,8 +51,8 @@ def cmd_recursive_parse_json(
     prefix: ARG_PREFIX = None,
     suffix: ARG_SUFFIX = None,
     force: OPT_FORCE = False,
-    verbose: ARG_VERBOSE = False,
-    quiet: ARG_QUIET = False,
+    verbose: OPT_VERBOSE = False,
+    quiet: OPT_QUIET = False,
 ):
     """解析字符串为 json"""
     # TODO: 解决模板代码的问题
@@ -83,8 +83,8 @@ def cmd_dump_json_to_str(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
     force: OPT_FORCE = False,
-    verbose: ARG_VERBOSE = False,
-    quiet: ARG_QUIET = False,
+    verbose: OPT_VERBOSE = False,
+    quiet: OPT_QUIET = False,
 ):
     """将 json 序列化为字符串"""
     console.quiet = quiet
