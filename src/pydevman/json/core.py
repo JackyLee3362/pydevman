@@ -133,7 +133,9 @@ class JsonProcessor:
     def process(self, text: str):
         try:
             _text = json.loads(text)
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
+            _text = text
+        except Exception as e:
             log.error(f'无法解析字符串, text="{text}"')
             raise e
 
@@ -141,8 +143,9 @@ class JsonProcessor:
             _text = handler.handle(_text)
         return _text
 
-    def dump_readable(self, obj: Union[str, dict, list]):
-        return json.dumps(obj, indent=2, ensure_ascii=False)
 
-    def dump_inline(self, obj: Union[str, dict, list]):
-        return json.dumps(obj, ensure_ascii=False)
+def api_dump_json(text: Union[str, dict, list, int, bool], inline=False):
+    if inline:
+        return json.dumps(text, ensure_ascii=False)
+    else:
+        return json.dumps(text, indent=2, ensure_ascii=False)

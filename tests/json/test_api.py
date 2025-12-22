@@ -14,10 +14,11 @@ def test_parse_simple():
 def test_parse_str_list():
     assert api_parse_str_to_json('[1, "b"]') == [1, "b"]
     assert api_parse_str_to_json('["a", "b"]') == ["a", "b"]
-    assert api_parse_str_to_json('"[\\"1\\", \\"2\\"]"') == [1, 2]
 
 
 def test_parse_recursive():
+    s = '"[\\"1\\", \\"2\\"]"'
+    assert api_parse_str_to_json(s, recursive=True) == [1, 2]
     s = r'{"json-str": "{\"foo\":\"bar\"}", "normal-str": "foobar", "boolean": true, "integer": 200, "float": 1.1, "list": [true, 2]}'
     api_parse_str_to_json(s, recursive=True)
 

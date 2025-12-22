@@ -15,7 +15,8 @@ from pydevman.args import (
     OPT_FORCE,
 )
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
-from pydevman.json.api import api_dump_json_to_str, api_parse_str_to_json
+from pydevman.json.api import api_parse_str_to_json
+from pydevman.json.core import api_dump_json
 from pydevman.log import config_log
 
 app = typer.Typer()
@@ -41,7 +42,7 @@ ARG_INLINE = Annotated[
 def cmd_recursive_parse_json(
     src: ARG_SRC_OR_FROM_CLIP = None,
     dst: ARG_DST_OR_TO_CLIP = None,
-    recursive: ARG_RECURSIVE = False,
+    recur: ARG_RECURSIVE = False,
     del_tag: ARG_DEL_HTML_TAG = False,
     inline: ARG_INLINE = False,
     force: OPT_FORCE = False,
@@ -56,12 +57,13 @@ def cmd_recursive_parse_json(
         config_log(logging.DEBUG)
     dump_content = None
     try:
-        origin_content = from_clipboard_or_file(src)
-        dump_content = api_parse_str_to_json(
-            origin_content, recursive=recursive, del_html_tag=del_tag, inline=inline
+        ori_text = from_clipboard_or_file(src)
+        parse_text = api_parse_str_to_json(
+            ori_text, recursive=recur, del_tag=del_tag, inline=inline
         )
+        dump_content = api_dump_json(parse_text, inline)
         to_clipboard_or_file(dst, dump_content, force, quiet)
-        console.print(dump_content)
+        console.print_json(dump_content)
     except AssertionError as e:
         console.print("断言错误", e)
     except json.JSONDecodeError as e:
@@ -86,9 +88,9 @@ def cmd_dump_json_to_str(
     dump_content = None
     try:
         origin_content = from_clipboard_or_file(src)
-        dump_content = api_dump_json_to_str(origin_content)
+        dump_content = api_dump_json(origin_content, inline=False)
         to_clipboard_or_file(dst, dump_content, force, quiet)
-        console.print(dump_content)
+        console.print_json(dump_content)
     except AssertionError as e:
         console.print("断言错误", e)
     except json.JSONDecodeError as e:
