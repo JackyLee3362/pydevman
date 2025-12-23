@@ -4,7 +4,7 @@ from pydevman.echo import app as echo_app
 from pydevman.file.__main__ import app as file_app
 from pydevman.json.__main__ import app as json_app
 
-app = typer.Typer()
+app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
 
 
 def main():

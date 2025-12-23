@@ -19,8 +19,8 @@ from pydevman.json.api import api_parse_str_to_json
 from pydevman.json.core import api_dump_json
 from pydevman.log import config_log
 
-app = typer.Typer()
 console = Console()
+app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
 
 ARG_RECURSIVE = Annotated[
     bool,

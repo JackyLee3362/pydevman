@@ -3,7 +3,7 @@ import typer
 app = typer.Typer()
 
 
-@app.command()
+@app.command(context_settings={"help_option_names": ["-h", "--help"]})
 def hello(name=None):
     if name:
         print(f"hello {name}")
