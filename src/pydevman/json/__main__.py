@@ -51,15 +51,10 @@ def cmd_recursive_parse_json(
     prefix: ARG_PREFIX = None,
     suffix: ARG_SUFFIX = None,
     force: OPT_FORCE = False,
-    verbose: OPT_VERBOSE = False,
-    quiet: OPT_QUIET = False,
 ):
     """解析字符串为 json"""
     # TODO: 解决模板代码的问题
     # TODO: 解决日志配置的问题
-    console.quiet = quiet
-    if verbose:
-        config_log(logging.DEBUG)
     dump_text = None
     try:
         ori_text = from_clipboard_or_file(src)
@@ -67,7 +62,7 @@ def cmd_recursive_parse_json(
             ori_text, recursive=recursive, del_tag=del_tag, prefix=prefix, suffix=suffix
         )
         dump_text = api_dump_json(parse_text, inline)
-        to_clipboard_or_file(dst, dump_text, force, quiet)
+        to_clipboard_or_file(dst, dump_text, force)
         console.print_json(dump_text)
     except AssertionError as e:
         console.print("断言错误", e)
@@ -83,18 +78,13 @@ def cmd_dump_json_to_str(
     src: ARG_SRC = None,
     dst: ARG_DST = None,
     force: OPT_FORCE = False,
-    verbose: OPT_VERBOSE = False,
-    quiet: OPT_QUIET = False,
 ):
     """将 json 序列化为字符串"""
-    console.quiet = quiet
-    if verbose:
-        config_log(logging.DEBUG)
     dump_content = None
     try:
         origin_content = from_clipboard_or_file(src)
         dump_content = api_dump_json(origin_content, inline=False)
-        to_clipboard_or_file(dst, dump_content, force, quiet)
+        to_clipboard_or_file(dst, dump_content, force)
         console.print_json(dump_content)
     except AssertionError as e:
         console.print("断言错误", e)
@@ -103,6 +93,13 @@ def cmd_dump_json_to_str(
     except Exception as e:
         console.print("未知异常", e)
         console.print("使用 -v 详细输出")
+
+
+@app.callback()
+def cmd_callback(verbose: OPT_VERBOSE = False, quiet: OPT_QUIET = False):
+    console.quiet = quiet
+    if verbose:
+        config_log(logging.DEBUG)
 
 
 if __name__ == "__main__":
