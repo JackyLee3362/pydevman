@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from typing import Iterable, Union
 
-from pydevman.json.core import (
+from pydevman.json.handler import (
     DelHtmlTagHandler,
     FilterKeyByPrefixHandler,
     FilterKeyBySuffixHandler,

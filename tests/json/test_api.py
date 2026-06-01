@@ -1,6 +1,6 @@
 from rich.console import Console
 
-from pydevman.json.api import api_parse_str_to_json
+from pydevman.json.service import api_parse_str_to_json
 
 console = Console()
 

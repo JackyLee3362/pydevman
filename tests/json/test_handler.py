@@ -1,5 +1,5 @@
-from pydevman.json.api import api_parse_str_to_json
-from pydevman.json.core import FilterKeyBySuffixHandler
+from pydevman.json.service import api_parse_str_to_json
+from pydevman.json.handler import FilterKeyBySuffixHandler
 
 
 def test_浅层_dict():

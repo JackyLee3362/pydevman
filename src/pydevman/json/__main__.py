@@ -15,8 +15,8 @@ from pydevman.args import (
     OPT_VERBOSE,
 )
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
-from pydevman.json.api import api_parse_str_to_json
-from pydevman.json.core import api_dump_json
+from pydevman.json.service import api_parse_str_to_json
+from pydevman.json.handler import api_dump_json
 from pydevman.log import config_log
 
 console = Console()

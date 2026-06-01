@@ -5,14 +5,19 @@ Description: 递归解析 json 代码
 """
 
 import json
-import logging
 from abc import ABC, abstractmethod
 from typing import Iterable, Union
 
-log = logging.getLogger(__name__)
+from loguru import logger
 
 
 class AbstractHandler(ABC):
+    """接口定义
+
+    Args:
+        ABC (_type_): _description_
+    """
+
     @abstractmethod
     def handle_dict(self, arg: dict): ...
 
@@ -40,14 +45,14 @@ class AbstractHandler(ABC):
 
 class DefaultHandler(AbstractHandler):
     def handle_dict(self, arg):
-        log.debug("handle dict...")
+        logger.debug("handle dict...")
         _di = {}
         for k, v in arg.items():
             _di[k] = self.handle(v)
         return _di
 
     def handle_list(self, arg):
-        log.debug("handle list...")
+        logger.debug("handle list...")
         _list = []
         for _, item in enumerate(arg):
             tmp = self.handle(item)
@@ -55,27 +60,27 @@ class DefaultHandler(AbstractHandler):
         return _list
 
     def handle_str(self, arg):
-        log.debug("handle str...")
+        logger.debug("handle str...")
         return arg
 
     def handle_int(self, arg):
-        log.debug("handle int...")
+        logger.debug("handle int...")
         return arg
 
     def handle_float(self, arg):
-        log.debug("handle float...")
+        logger.debug("handle float...")
         return arg
 
     def handle_bool(self, arg):
-        log.debug("handle bool...")
+        logger.debug("handle bool...")
         return arg
 
     def handle_none(self, arg):
-        log.debug("handle none...")
+        logger.debug("handle none...")
         return arg
 
     def handle(self, arg):
-        log.debug("handle default ...")
+        logger.debug("handle default ...")
         if arg is None:
             return self.handle_none(arg)
         if isinstance(arg, list):
@@ -162,7 +167,7 @@ class JsonProcessor:
         except json.JSONDecodeError:
             _text = text
         except Exception as e:
-            log.error(f'无法解析字符串, text="{text}"')
+            logger.error(f'无法解析字符串, text="{text}"')
             raise e
 
         for handler in self.handlers:
