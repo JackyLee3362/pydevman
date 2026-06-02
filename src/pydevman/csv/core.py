@@ -6,6 +6,11 @@ from typing import Generator, Iterable, Iterator
 from loguru import logger
 
 
+def validate_csv_file(csv_file: Path):
+    if csv_file.suffix != ".csv":
+        raise Exception("文件类型错误")
+
+
 def generate_csv_row(stream: Iterable, skip: int) -> Generator[dict, None, None]:
     """生成 csv 内容
 
@@ -22,13 +27,18 @@ def generate_csv_row(stream: Iterable, skip: int) -> Generator[dict, None, None]
         yield _line_dict
 
 
-def get_csv_no(csv_file: Path, no: int):
-    if csv_file.suffix != ".csv":
-        raise Exception("文件类型错误")
-    with open(csv_file, encoding="utf-8") as f:
+def get_csv_no(csv_file: Path, no: int, default_val: str = None):
+    validate_csv_file(csv_file)
+    result = []
+    with open(csv_file, "r", encoding="utf-8") as f:
         reader = csv.reader(f)
-        customer_no_list = [row[no] for row in reader]
-    return customer_no_list
+        for row in reader:
+            if len(row) > no:
+                result.append(row[no])
+            else:
+                # 列不足时填空值
+                result.append(default_val)
+    return result
 
 
 def split_csv_with_cnt(csv_file: Path, dst_dir: Path, max_cnt: int):
