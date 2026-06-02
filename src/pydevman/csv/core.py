@@ -1,6 +1,7 @@
 import csv
 from itertools import islice
-from typing import Generator, Iterable
+from pathlib import Path
+from typing import Generator, Iterable, Iterator
 
 
 def generate_csv_row(stream: Iterable, skip: int) -> Generator[dict, None, None]:
@@ -17,3 +18,53 @@ def generate_csv_row(stream: Iterable, skip: int) -> Generator[dict, None, None]
     _dict = csv.DictReader(_iter)
     for _line_dict in _dict:
         yield _line_dict
+
+
+def get_csv_no(csv_file: Path, no: int):
+    if csv_file.suffix != ".csv":
+        raise Exception("文件类型错误")
+    with open(csv_file, encoding="utf-8") as f:
+        reader = csv.reader(f)
+        customer_no_list = [row[no] for row in reader]
+    return customer_no_list
+
+
+def split_csv_with_cnt(csv_file: Path, dst_dir: Path, max_cnt: int):
+    """
+    将一个大 CSV 文件按行数拆分为多个小文件，每个文件最多 max_cnt 条数据行。
+    每个拆分文件都保留原始表头。
+    """
+    dst_dir.mkdir(parents=True, exist_ok=True)
+    stem = csv_file.stem
+    suffix = csv_file.suffix
+    print("拆分开始 START")
+    with open(csv_file, "r", encoding="utf-8", newline="") as f:
+        reader = csv.reader(f)
+        header = next(reader)
+        for index, batch in enumerate(_batched(reader, max_cnt), start=1):
+            part_path = dst_dir / f"{stem}_part{index}{suffix}"
+            _write_csv(part_path, header, batch)
+    print("拆分结束 END")
+
+
+def _write_csv(path: Path, header: list[str], rows: list[list[str]]):
+    """将表头 + 数据行写入一个 CSV 文件。"""
+    print("写入文件 START path: ", path)
+    with open(path, "w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+        writer.writerows(rows)
+    print("写入文件 END path: ", path)
+
+
+def _batched(iterator: Iterator, size: int) -> Iterator[list]:
+    """将迭代器按 size 分批产出，每批是一个 list。"""
+    batch = []
+    for item in iterator:
+        batch.append(item)
+        if len(batch) == size:
+            print("分批导出:", size)
+            yield batch
+            batch = []
+    if batch:
+        yield batch
