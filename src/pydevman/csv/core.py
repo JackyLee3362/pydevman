@@ -3,6 +3,8 @@ from itertools import islice
 from pathlib import Path
 from typing import Generator, Iterable, Iterator
 
+from loguru import logger
+
 
 def generate_csv_row(stream: Iterable, skip: int) -> Generator[dict, None, None]:
     """生成 csv 内容
@@ -37,24 +39,24 @@ def split_csv_with_cnt(csv_file: Path, dst_dir: Path, max_cnt: int):
     dst_dir.mkdir(parents=True, exist_ok=True)
     stem = csv_file.stem
     suffix = csv_file.suffix
-    print("拆分开始 START")
+    logger.info("拆分开始 START")
     with open(csv_file, "r", encoding="utf-8", newline="") as f:
         reader = csv.reader(f)
         header = next(reader)
         for index, batch in enumerate(_batched(reader, max_cnt), start=1):
             part_path = dst_dir / f"{stem}_part{index}{suffix}"
             _write_csv(part_path, header, batch)
-    print("拆分结束 END")
+    logger.info("拆分结束 END")
 
 
 def _write_csv(path: Path, header: list[str], rows: list[list[str]]):
     """将表头 + 数据行写入一个 CSV 文件。"""
-    print("写入文件 START path: ", path)
+    logger.info("写入文件 START path: ", path)
     with open(path, "w", encoding="utf-8", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(header)
         writer.writerows(rows)
-    print("写入文件 END path: ", path)
+    logger.info("写入文件 END path: ", path)
 
 
 def _batched(iterator: Iterator, size: int) -> Iterator[list]:
@@ -63,7 +65,7 @@ def _batched(iterator: Iterator, size: int) -> Iterator[list]:
     for item in iterator:
         batch.append(item)
         if len(batch) == size:
-            print("分批导出:", size)
+            logger.info("分批导出:", size)
             yield batch
             batch = []
     if batch:
