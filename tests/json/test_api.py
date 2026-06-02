@@ -33,3 +33,9 @@ def test_filter_key():
     s = r'{"list": [true, "foo", 2], "key": "boo"}'
     res = api_parse_str_to_json(s, prefix=["k"])
     assert res == {"list": [True, "foo", 2]}
+
+
+def test_filter_key_v2():
+    s = r'{"list": [true, "foo", 2], "key": {"innerKey":1, "innerKey2":2, "foo":3}}'
+    res = api_parse_str_to_json(s, prefix=["inner"])
+    assert res == {"list": [True, "foo", 2], "key": {"foo": 3}}

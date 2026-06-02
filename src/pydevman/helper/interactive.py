@@ -21,7 +21,10 @@ def to_clipboard_or_file(dst: Path, content: str, force: bool) -> bool:
         pyperclip.copy(content)
         return True
     # dst 非空,路径
-    if dst.exists() and force:
+    if not dst.exists():
+        dst.write_text(content)
+        return True
+    elif dst.exists() and force:
         dst.write_text(content)
         return True
     return False

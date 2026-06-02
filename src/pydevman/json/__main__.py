@@ -22,34 +22,34 @@ from pydevman.log import config_log
 console = Console()
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
 
-ARG_RECURSIVE = Annotated[
+OPT_RECURSIVE = Annotated[
     bool,
     typer.Option(
         "--recursive", "-r", help="是否递归去转义", show_default="默认关闭递归"
     ),
 ]
 
-ARG_DEL_HTML_TAG = Annotated[
+OPT_DEL_HTML_TAG = Annotated[
     bool,
     typer.Option("--del-tag", help="是否去除标签", show_default="默认关闭剔除标签"),
 ]
-ARG_INLINE = Annotated[
+OPT_INLINE = Annotated[
     bool, typer.Option("--inline", help="是否单行输出", show_default="默认多行")
 ]
 
-ARG_PREFIX = Annotated[list[str], typer.Option("--prefix", help="过滤的字段前缀")]
-ARG_SUFFIX = Annotated[list[str], typer.Option("--suffix", help="过滤的字段后缀")]
+OPT_PREFIX = Annotated[list[str], typer.Option("--prefix", help="过滤的字段前缀")]
+OPT_SUFFIX = Annotated[list[str], typer.Option("--suffix", help="过滤的字段后缀")]
 
 
 @app.command("parse")
 def cmd_recursive_parse_json(
     src: ARG_SRC_OR_FROM_CLIP = None,
     dst: ARG_DST_OR_TO_CLIP = None,
-    recursive: ARG_RECURSIVE = False,
-    del_tag: ARG_DEL_HTML_TAG = False,
-    inline: ARG_INLINE = False,
-    prefix: ARG_PREFIX = None,
-    suffix: ARG_SUFFIX = None,
+    recursive: OPT_RECURSIVE = False,
+    del_tag: OPT_DEL_HTML_TAG = False,
+    inline: OPT_INLINE = False,
+    prefix: OPT_PREFIX = None,
+    suffix: OPT_SUFFIX = None,
     force: OPT_FORCE = False,
 ):
     """解析字符串为 json"""

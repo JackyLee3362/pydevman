@@ -8,7 +8,7 @@ ARG_SRC_OR_FROM_CLIP = Annotated[
     Path, typer.Argument(help="源文件路径，不指定则从剪贴板读取")
 ]
 ARG_DST_OR_TO_CLIP = Annotated[
-    Path, typer.Argument(help="源文件路径，不指定则粘贴至剪贴板")
+    Path, typer.Argument(help="目标文件路径，不指定则粘贴至剪贴板")
 ]
 ARG_SRC = Annotated[Path, typer.Argument(help="源文件路径")]
 ARG_DST = Annotated[Path, typer.Argument(help="目标文件路径")]
