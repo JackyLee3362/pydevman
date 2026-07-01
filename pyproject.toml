@@ -3,7 +3,7 @@ name = "pydevman"
 version = "0.1.7"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.14"
 dependencies = [
     "beautifulsoup4>=4.14.2",
     "customtkinter>=5.2.2",
@@ -24,11 +24,12 @@ dependencies = [
 pydevman = "pydevman.__main__:main"
 
 [dependency-groups]
-dev = [
-    "pytest>=8.4.2",
-]
+dev = ["pytest>=8.4.2"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 # pytest -v 表示详细模式
 addopts = "-v"
+[tool.uv]
+package = true

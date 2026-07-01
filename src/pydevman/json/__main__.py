@@ -15,8 +15,8 @@ from pydevman.args import (
     OPT_VERBOSE,
 )
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
-from pydevman.json.service import api_parse_str_to_json
 from pydevman.json.handler import api_dump_json
+from pydevman.json.service import parse_str_to_json
 from pydevman.log import config_log
 
 console = Console()
@@ -58,7 +58,7 @@ def cmd_recursive_parse_json(
     dump_text = None
     try:
         ori_text = from_clipboard_or_file(src)
-        parse_text = api_parse_str_to_json(
+        parse_text = parse_str_to_json(
             ori_text, recursive=recursive, del_tag=del_tag, prefix=prefix, suffix=suffix
         )
         dump_text = api_dump_json(parse_text, inline)
