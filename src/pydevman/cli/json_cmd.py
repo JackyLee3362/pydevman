@@ -5,7 +5,7 @@ import typer
 from rich.console import Console
 from typing_extensions import Annotated
 
-from pydevman.args import (
+from pydevman.cli.args import (
     ARG_DST,
     ARG_DST_OR_TO_CLIP,
     ARG_SRC,
@@ -14,9 +14,9 @@ from pydevman.args import (
     OPT_QUIET,
     OPT_VERBOSE,
 )
+from pydevman.core.json.handler import api_dump_json
+from pydevman.core.json.service import parse_str_to_json
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
-from pydevman.json.handler import api_dump_json
-from pydevman.json.service import parse_str_to_json
 from pydevman.log import config_log
 
 console = Console()

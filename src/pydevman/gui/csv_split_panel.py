@@ -5,7 +5,7 @@ from tkinter import filedialog
 import customtkinter as ctk
 from loguru import logger
 
-from pydevman.csv.core import split_csv_with_cnt
+from pydevman.core.csv.core import split_csv_with_cnt
 
 
 class CsvSplitApp:

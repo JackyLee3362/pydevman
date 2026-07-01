@@ -1,6 +1,6 @@
 from typing import Iterable, Union
 
-from pydevman.json.handler import (
+from pydevman.core.json.handler import (
     DelHtmlTagHandler,
     FilterKeyByPrefixHandler,
     FilterKeyBySuffixHandler,

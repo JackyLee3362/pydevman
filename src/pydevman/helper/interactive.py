@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pyperclip
 
-from pydevman.file.common import assert_path_exist_and_is_file
+from pydevman.core.file.common import assert_path_exist_and_is_file
 
 log = logging.getLogger(__name__)
 

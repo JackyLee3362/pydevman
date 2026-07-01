@@ -2,9 +2,9 @@ from importlib.metadata import version as get_version
 
 import typer
 
-from pydevman.echo import app as echo_app
-from pydevman.file.__main__ import app as file_app
-from pydevman.json.__main__ import app as json_app
+from pydevman.cli.echo_cmd import app as echo_app
+from pydevman.cli.file_cmd import app as file_app
+from pydevman.cli.json_cmd import app as json_app
 
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
 
@@ -17,6 +17,14 @@ def main_callback(
     if version:
         typer.echo(get_version("pydevman"))
         raise typer.Exit()
+
+
+@app.command("gui", context_settings={"help_option_names": ["-h", "--help"]})
+def cmd_gui():
+    """启动图形界面"""
+    from pydevman.gui.app import launch_gui
+
+    launch_gui()
 
 
 def main():

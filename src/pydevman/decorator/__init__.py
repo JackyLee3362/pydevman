@@ -1,1 +1,1 @@
-from pydevman.decorator.run_once import run_once
+from pydevman.decorator.common import run_once

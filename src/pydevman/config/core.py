@@ -3,7 +3,7 @@ from typing import Dict, Union
 
 from omegaconf import OmegaConf
 
-from pydevman.file.load import load_config_file
+from pydevman.core.file.load import load_config_file
 
 
 # 对于配置，建议开启环境，关闭 merge

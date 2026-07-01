@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Generator
 
-from pydevman.file.common import (
+from pydevman.core.file.common import (
     assert_path_exist_and_is_dir,
     assert_path_exist_and_is_file,
     path_is_dot_path,

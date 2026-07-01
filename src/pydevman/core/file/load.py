@@ -6,7 +6,7 @@ import tomli
 import yaml
 from omegaconf import OmegaConf
 
-from pydevman.file.common import assert_path_exist_and_is_file
+from pydevman.core.file.common import assert_path_exist_and_is_file
 
 
 def load_config_file(path):

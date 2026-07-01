@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from pydevman.file.load import load_config_file
+from pydevman.core.file.load import load_config_file
 
 parent_dir = Path(__file__).parent
 

@@ -10,7 +10,7 @@ from pathlib import Path
 import typer
 from rich.console import Console
 
-from pydevman.args import (
+from pydevman.cli.args import (
     ARG_DST,
     ARG_SRC,
     OPT_DRY_RUN,
@@ -20,10 +20,10 @@ from pydevman.args import (
     OPT_INCLUDE_FILE_SUFFIX,
     OPT_MAX_DEPTH,
 )
-from pydevman.file.copy import copytree
-from pydevman.file.delete import del_dir, del_empty_dir_recursive
-from pydevman.file.move import move_match_pattern_file, move_prefix_ext
-from pydevman.file.stat import (
+from pydevman.core.file.copy import copytree
+from pydevman.core.file.delete import del_dir, del_empty_dir_recursive
+from pydevman.core.file.move import move_match_pattern_file, move_prefix_ext
+from pydevman.core.file.stat import (
     api_stat_by_prefix,
     api_stat_by_suffix,
     api_stat_cnt,

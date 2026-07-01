@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pydevman.file.stat import (
+from pydevman.core.file.stat import (
     api_stat_by_prefix,
     api_stat_by_suffix,
     api_stat_cnt,
