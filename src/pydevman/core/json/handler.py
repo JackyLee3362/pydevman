@@ -11,12 +11,8 @@ from typing import Iterable, Union
 from loguru import logger
 
 
-class AbstractHandler(ABC):
-    """接口定义
-
-    Args:
-        ABC (_type_): _description_
-    """
+class JsonFieldHandlerInterface(ABC):
+    """Json字段处理接口"""
 
     @abstractmethod
     def handle_dict(self, arg: dict): ...
@@ -43,7 +39,7 @@ class AbstractHandler(ABC):
     def handle(self, arg): ...
 
 
-class DefaultHandler(AbstractHandler):
+class AbstractHandler(JsonFieldHandlerInterface):
     def handle_dict(self, arg):
         logger.debug("handle dict...")
         _di = {}
@@ -60,27 +56,21 @@ class DefaultHandler(AbstractHandler):
         return _list
 
     def handle_str(self, arg):
-        logger.debug("handle str...")
         return arg
 
     def handle_int(self, arg):
-        logger.debug("handle int...")
         return arg
 
     def handle_float(self, arg):
-        logger.debug("handle float...")
         return arg
 
     def handle_bool(self, arg):
-        logger.debug("handle bool...")
         return arg
 
     def handle_none(self, arg):
-        logger.debug("handle none...")
         return arg
 
     def handle(self, arg):
-        logger.debug("handle default ...")
         if arg is None:
             return self.handle_none(arg)
         if isinstance(arg, list):
@@ -102,12 +92,12 @@ class DefaultHandler(AbstractHandler):
             )
 
 
-class RecursiveHandler(DefaultHandler):
-    """递归解析,参数为 dict, list, str, int, float, None 中的一种"""
+class RecursiveUnescapeHandler(AbstractHandler):
+    """递归去转义,入参为 dict, list, str, int, float, None 中的一种"""
 
     def handle_str(self, arg) -> Union[dict, list, str, int, float, None]:
         try:
-            # 如果可以被解析
+            # 如果可以被去转义
             shallow_parsed = json.loads(arg)
         except json.JSONDecodeError:
             return arg
@@ -115,14 +105,14 @@ class RecursiveHandler(DefaultHandler):
         return deep_parsed
 
 
-class DelHtmlTagHandler(DefaultHandler):
+class DelHtmlTagHandler(AbstractHandler):
     def handle_str(self, arg):
         import bs4
 
         return bs4.BeautifulSoup(arg, "html.parser").get_text()
 
 
-class FilterKeyByPrefixHandler(DefaultHandler):
+class FilterFieldByPrefixHandler(AbstractHandler):
     def __init__(self, prefix_filter: Iterable[str]):
         self._prefix = set(prefix_filter)
 
@@ -138,7 +128,7 @@ class FilterKeyByPrefixHandler(DefaultHandler):
         return _di
 
 
-class FilterKeyBySuffixHandler(DefaultHandler):
+class FilterFieldBySuffixHandler(AbstractHandler):
     def __init__(self, suffix_filter: Iterable[str]):
         self._suffix = set(suffix_filter)
 
@@ -152,27 +142,6 @@ class FilterKeyBySuffixHandler(DefaultHandler):
                 continue
             _di[k] = self.handle(v)
         return _di
-
-
-class JsonProcessor:
-    def __init__(self):
-        self.handlers: list[AbstractHandler] = []
-
-    def register(self, handler: AbstractHandler):
-        self.handlers.append(handler)
-
-    def process(self, text: str):
-        try:
-            _text = json.loads(text)
-        except json.JSONDecodeError:
-            _text = text
-        except Exception as e:
-            logger.error(f'无法解析字符串, text="{text}"')
-            raise e
-
-        for handler in self.handlers:
-            _text = handler.handle(_text)
-        return _text
 
 
 def api_dump_json(text: Union[str, dict, list, int, bool], inline=False):

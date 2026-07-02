@@ -1,16 +1,15 @@
-from pydevman.core.json.handler import FilterKeyBySuffixHandler
-from pydevman.core.json.service import parse_str_to_json
+from pydevman.core.json.handler import FilterFieldBySuffixHandler
 
 
 def test_浅层_dict():
-    handler = FilterKeyBySuffixHandler(suffix_filter=["name"])
+    handler = FilterFieldBySuffixHandler(suffix_filter=["name"])
     alice = {"firstname": "", "lastname": "", "age": ""}
     res = handler.handle(alice)
     assert res == {"age": ""}
 
 
 def test_深层_dict():
-    handler = FilterKeyBySuffixHandler(suffix_filter=["name"])
+    handler = FilterFieldBySuffixHandler(suffix_filter=["name"])
     alice = {"firstname": "", "lastname": "", "age": ""}
     bob = {"firstname": "", "lastname": "", "age": ""}
     all_students = {"students": {"alice": alice, "bob": bob}}
@@ -19,14 +18,14 @@ def test_深层_dict():
 
 
 def test_浅层_list():
-    handler = FilterKeyBySuffixHandler(suffix_filter=["name"])
+    handler = FilterFieldBySuffixHandler(suffix_filter=["name"])
     alice = [{"firstname": "", "lastname": "", "age": ""}]
     res = handler.handle(alice)
     assert res == [{"age": ""}]
 
 
 def test_深层_list():
-    handler = FilterKeyBySuffixHandler(suffix_filter=["name"])
+    handler = FilterFieldBySuffixHandler(suffix_filter=["name"])
     alice = {"firstname": "", "lastname": "", "age": ""}
     bob = {"firstname": "", "lastname": "", "age": ""}
     all_students = {"students": [alice, bob]}

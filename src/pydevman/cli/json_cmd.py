@@ -15,7 +15,7 @@ from pydevman.cli.args import (
     OPT_VERBOSE,
 )
 from pydevman.core.json.handler import api_dump_json
-from pydevman.core.json.service import parse_str_to_json
+from pydevman.core.json.processor import JsonHandler, JsonProcessor
 from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
 from pydevman.log import config_log
 
@@ -53,14 +53,21 @@ def cmd_recursive_parse_json(
     force: OPT_FORCE = False,
 ):
     """解析字符串为 json"""
-    # TODO: 解决模板代码的问题
-    # TODO: 解决日志配置的问题
     dump_text = None
     try:
         ori_text = from_clipboard_or_file(src)
-        parse_text = parse_str_to_json(
-            ori_text, recursive=recursive, del_tag=del_tag, prefix=prefix, suffix=suffix
-        )
+
+        processor = JsonProcessor()
+        if recursive:
+            processor.register(JsonHandler.RECURSIVE_UNESCAPE)
+        if del_tag:
+            processor.register(JsonHandler.DEL_HTML_TAG)
+        if prefix:
+            processor.register(JsonHandler.FILTER_FIELD_BY_PREFIX, prefix_filter=prefix)
+        if suffix:
+            processor.register(JsonHandler.FILTER_FIELD_BY_SUFFIX, suffix_filter=suffix)
+        parse_text = processor.process(ori_text)
+
         dump_text = api_dump_json(parse_text, inline)
         to_clipboard_or_file(dst, dump_text, force)
         console.print_json(dump_text)
