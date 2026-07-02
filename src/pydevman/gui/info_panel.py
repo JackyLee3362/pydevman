@@ -1,21 +1,28 @@
+import tkinter as tk
 from tkinter import font
 
-import customtkinter as ctk
 
+class FontInfoFrame(tk.Frame):
+    """系统字体列表面板"""
 
-class App:
-    def __init__(self, master: ctk.CTk):
-        self.master = master
-        self.master.geometry("800x500")
+    def __init__(self, parent: tk.Widget, **kwargs):
+        super().__init__(parent, **kwargs)
+        self._build_ui()
 
-        # 列出所有字体
+    def _build_ui(self):
+        tk.Label(self, text="系统字体列表（已输出到控制台）").pack(pady=20)
         all_fonts = list(font.families())
         all_fonts.sort()
+        listbox = tk.Listbox(self)
+        listbox.pack(fill="both", expand=True, padx=10, pady=10)
         for f in all_fonts:
+            listbox.insert("end", f)
             print(f)
 
 
 if __name__ == "__main__":
-    app = ctk.CTk()
-    gui = App(master=app)
-    app.mainloop()
+    root = tk.Tk()
+    root.title("系统字体列表")
+    root.geometry("600x400")
+    FontInfoFrame(root).pack(fill="both", expand=True)
+    root.mainloop()

@@ -6,7 +6,6 @@ readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "beautifulsoup4>=4.14.2",
-    "customtkinter>=5.2.2",
     "inquirer>=3.4.0",
     "loguru>=0.7.3",
     "omegaconf>=2.3.0",
@@ -21,7 +20,10 @@ dependencies = [
 ]
 
 [project.scripts]
+# uv run python -m pydevman 是去 .venv 中的三方库查找
+# uv run pydevman
 pydevman = "pydevman.__main__:main"
+# uv run pydevman-gui
 pydevman-gui = "pydevman.gui.__main__:main"
 
 [dependency-groups]
