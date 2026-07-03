@@ -6,7 +6,6 @@ from tkinter import messagebox, ttk
 
 from pydevman.core.json.handler import api_dump_json
 from pydevman.core.json.processor import JsonHandler, JsonProcessor
-from pydevman.cli.clipboard_utils import from_clipboard_or_file, to_clipboard_or_file
 
 
 class JsonFrame(tk.Frame):
@@ -176,7 +175,7 @@ class JsonFrame(tk.Frame):
 
     def _paste_input(self):
         try:
-            text = from_clipboard_or_file(None)
+            text = self.clipboard_get()
             self._txt_input.delete("1.0", "end")
             self._txt_input.insert("1.0", text)
         except Exception as e:
@@ -185,7 +184,8 @@ class JsonFrame(tk.Frame):
     def _copy_output(self):
         text = self._txt_output.get("1.0", "end-1c")
         if text.strip():
-            to_clipboard_or_file(None, text, force=True)
+            self.clipboard_clear()
+            self.clipboard_append(text)
         else:
             messagebox.showwarning("提示", "输出为空")
 
