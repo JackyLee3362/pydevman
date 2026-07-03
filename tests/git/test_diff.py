@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import git
-from pydevman.core.git.diff import DiffStat, diff_stat, resolve_base_branch
+from pydevman.core.git.diff import DiffStat, _parse_shortstat, diff_stat, resolve_base_branch
 
 # 以 pydevman 仓库自身作为测试 fixture
 REPO_ROOT = Path(__file__).parent.parent.parent
@@ -58,3 +58,19 @@ def test_diff_stat_invalid_branch_raises():
     import pytest
     with pytest.raises(ValueError, match="分支不存在"):
         diff_stat(REPO_ROOT, "branch-that-does-not-exist-xyz")
+
+
+def test_parse_shortstat_empty():
+    assert _parse_shortstat("") == (0, 0, 0)
+
+
+def test_parse_shortstat_insertions_only():
+    assert _parse_shortstat(" 1 file changed, 5 insertions(+)") == (1, 5, 0)
+
+
+def test_parse_shortstat_deletions_only():
+    assert _parse_shortstat(" 1 file changed, 3 deletions(-)") == (1, 0, 3)
+
+
+def test_parse_shortstat_both():
+    assert _parse_shortstat(" 3 files changed, 42 insertions(+), 7 deletions(-)") == (3, 42, 7)

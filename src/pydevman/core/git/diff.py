@@ -43,6 +43,14 @@ def resolve_base_branch(repo: git.Repo) -> str:
     raise ValueError("无法自动检测基准分支，请手动指定 --base")
 
 
+def _resolve_ref(repo: git.Repo, branch: str) -> str:
+    """Return git ref for diff: local name if local branch exists, else origin/<branch>。"""
+    local_names = {b.name for b in repo.branches}
+    if branch in local_names:
+        return branch
+    return f"origin/{branch}"
+
+
 _SHORTSTAT_RE = re.compile(
     r"(\d+) files? changed"
     r"(?:, (\d+) insertions?\(\+\))?"
@@ -90,11 +98,16 @@ def diff_stat(
         base_branch = resolve_base_branch(repo)
 
     existing = _all_branch_names(repo)
+    if base_branch not in existing:
+        raise ValueError(f"分支不存在: {base_branch}")
     if target_branch not in existing:
         raise ValueError(f"分支不存在: {target_branch}")
 
-    log.debug("git diff --shortstat %s %s", base_branch, target_branch)
-    raw = repo.git.diff("--shortstat", base_branch, target_branch)
+    base_ref = _resolve_ref(repo, base_branch)
+    target_ref = _resolve_ref(repo, target_branch)
+
+    log.debug("git diff --shortstat %s...%s", base_ref, target_ref)
+    raw = repo.git.diff("--shortstat", f"{base_ref}...{target_ref}")
     files_changed, added, deleted = _parse_shortstat(raw)
 
     return DiffStat(
