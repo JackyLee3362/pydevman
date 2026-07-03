@@ -3,7 +3,7 @@ from pathlib import Path
 
 from send2trash import send2trash
 
-from pydevman.core.file.common import (
+from pydevman.utils.file_utils import (
     assert_path_exist_and_is_dir,
     path_is_dir_without_any_file,
 )

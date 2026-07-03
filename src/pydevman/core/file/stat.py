@@ -3,7 +3,7 @@ from collections import OrderedDict
 from pathlib import Path
 from typing import Iterable, Union
 
-from pydevman.core.file.common import assert_path_exist_and_is_dir
+from pydevman.utils.file_utils import assert_path_exist_and_is_dir
 from pydevman.core.file.iter import get_line_for_file, iter_dirs, iter_files
 
 log = logging.getLogger(__name__)

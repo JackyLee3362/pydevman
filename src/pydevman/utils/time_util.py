@@ -7,12 +7,6 @@ class DT_FORMAT(enum.Enum):
     DEFAULT_SHORT_PATTERN = "%Y%m%d_%H%M%S"
 
 
-class DT_FORMAT_LIST(enum.Enum):
-    Y_YM_WITH_DASH = ["%Y", "%Y-%m"]
-    Y_YM_YMD_WITH_DASH = ["%Y", "%Y-%m", "%Y-%m-%d"]
-    Y_YM_YMDA_WITH_DASH = ["%Y", "%Y-%m", "%Y-%m-%d-%a"]
-
-
 def timestamp_to_datetime_second(timestamp):
     return datetime.fromtimestamp(timestamp)
 
