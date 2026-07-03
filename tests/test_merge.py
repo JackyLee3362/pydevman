@@ -1,6 +1,6 @@
 from copy import deepcopy
 
-from pydevman.helper.merge import deepmerge
+from pydevman.utils.dict_util import deepmerge
 
 
 def test_deepmerge_v2():
