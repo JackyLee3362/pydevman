@@ -6,7 +6,7 @@ from tkinter import messagebox, ttk
 
 from pydevman.core.json.handler import api_dump_json
 from pydevman.core.json.processor import JsonHandler, JsonProcessor
-from pydevman.helper.interactive import from_clipboard_or_file, to_clipboard_or_file
+from pydevman.cli.clipboard_utils import from_clipboard_or_file, to_clipboard_or_file
 
 
 class JsonFrame(tk.Frame):
