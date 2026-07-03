@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import git
-from pydevman.core.git.diff import DiffStat, resolve_base_branch
+from pydevman.core.git.diff import DiffStat, diff_stat, resolve_base_branch
 
 # 以 pydevman 仓库自身作为测试 fixture
 REPO_ROOT = Path(__file__).parent.parent.parent
@@ -27,3 +27,34 @@ def test_resolve_base_branch_returns_main():
     repo = git.Repo(REPO_ROOT)
     branch = resolve_base_branch(repo)
     assert branch == "main"
+
+
+def test_diff_stat_same_branch_returns_zeros():
+    """同分支对比，所有数值为 0。"""
+    result = diff_stat(REPO_ROOT, "main", base_branch="main")
+    assert result.files_changed == 0
+    assert result.added == 0
+    assert result.deleted == 0
+    assert result.changed == 0
+    assert result.base_branch == "main"
+    assert result.target_branch == "main"
+
+
+def test_diff_stat_auto_detect_base_branch():
+    """不传 base_branch 时自动检测为 main。"""
+    result = diff_stat(REPO_ROOT, "main")
+    assert result.base_branch == "main"
+
+
+def test_diff_stat_invalid_repo_raises():
+    import tempfile
+    import pytest
+    with tempfile.TemporaryDirectory() as tmp:
+        with pytest.raises(git.InvalidGitRepositoryError):
+            diff_stat(Path(tmp), "main")
+
+
+def test_diff_stat_invalid_branch_raises():
+    import pytest
+    with pytest.raises(ValueError, match="分支不存在"):
+        diff_stat(REPO_ROOT, "branch-that-does-not-exist-xyz")
