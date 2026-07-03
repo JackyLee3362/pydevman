@@ -7,7 +7,7 @@ from rich.console import Console
 from typing_extensions import Annotated
 
 from pydevman.core.git.diff import diff_stat
-from pydevman.helper.table import api_build_table
+from pydevman.cli.table import api_build_table
 
 console = Console()
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})

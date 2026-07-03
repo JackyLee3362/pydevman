@@ -29,7 +29,7 @@ from pydevman.core.file.stat import (
     api_stat_cnt,
     api_stat_line,
 )
-from pydevman.helper.table import api_build_table
+from pydevman.cli.table import api_build_table
 
 console = Console()
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
