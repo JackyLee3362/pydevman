@@ -3,6 +3,7 @@ from importlib.metadata import version as get_version
 import typer
 
 from pydevman.cli.echo_cmd import app as echo_app
+from pydevman.cli.encode_cmd import app as encode_app
 from pydevman.cli.file_cmd import app as file_app
 from pydevman.cli.json_cmd import app as json_app
 from pydevman.cli.git_cmd import app as git_app
@@ -30,6 +31,7 @@ def cmd_gui():
 
 def main():
     app.add_typer(echo_app, name="echo", help="echo 工具")
+    app.add_typer(encode_app, name="enc", help="编码/解码工具")
     app.add_typer(json_app, name="json", help="json 工具")
     app.add_typer(file_app, name="file", help="file 工具")
     app.add_typer(git_app, name="git", help="git 工具")

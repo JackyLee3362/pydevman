@@ -1,26 +1,40 @@
 import json
-import logging
 
 import typer
 from rich.console import Console
 from typing_extensions import Annotated
 
+from pathlib import Path
+
 from pydevman.cli.args import (
     ARG_DST,
-    ARG_DST_OR_TO_CLIP,
     ARG_SRC,
-    ARG_SRC_OR_FROM_CLIP,
     OPT_FORCE,
     OPT_QUIET,
     OPT_VERBOSE,
 )
-from pydevman.core.json.handler import api_dump_json
-from pydevman.core.json.processor import JsonHandler, JsonProcessor
+from pydevman.core.json.handler import (
+    dump_json,
+    filter_prefix,
+    filter_suffix,
+    parse_json,
+    recursive_unescape,
+    strip_html_tags,
+)
 from pydevman.cli.clipboard_utils import from_clipboard_or_file, to_clipboard_or_file
 from pydevman.log import config_log
 
 console = Console()
 app = typer.Typer(context_settings={"help_option_names": ["-h", "--help"]})
+
+# ---- 仅 json 模块使用的剪贴板参数 ----
+
+ARG_SRC_OR_FROM_CLIP = Annotated[
+    Path, typer.Argument(help="源文件路径，不指定则从剪贴板读取")
+]
+ARG_DST_OR_TO_CLIP = Annotated[
+    Path, typer.Argument(help="目标文件路径，不指定则粘贴至剪贴板")
+]
 
 OPT_RECURSIVE = Annotated[
     bool,
@@ -57,18 +71,17 @@ def cmd_recursive_parse_json(
     try:
         ori_text = from_clipboard_or_file(src)
 
-        processor = JsonProcessor()
+        data = parse_json(ori_text)
         if recursive:
-            processor.register(JsonHandler.RECURSIVE_UNESCAPE)
+            data = recursive_unescape(data)
         if del_tag:
-            processor.register(JsonHandler.DEL_HTML_TAG)
+            data = strip_html_tags(data)
         if prefix:
-            processor.register(JsonHandler.FILTER_FIELD_BY_PREFIX, prefix_filter=prefix)
+            data = filter_prefix(data, prefix)
         if suffix:
-            processor.register(JsonHandler.FILTER_FIELD_BY_SUFFIX, suffix_filter=suffix)
-        parse_text = processor.process(ori_text)
+            data = filter_suffix(data, suffix)
 
-        dump_text = api_dump_json(parse_text, inline)
+        dump_text = dump_json(data, inline)
         to_clipboard_or_file(dst, dump_text, force)
         console.print_json(dump_text)
     except AssertionError as e:
@@ -90,7 +103,7 @@ def cmd_dump_json_to_str(
     dump_content = None
     try:
         origin_content = from_clipboard_or_file(src)
-        dump_content = api_dump_json(origin_content, inline=False)
+        dump_content = dump_json(origin_content, inline=False)
         to_clipboard_or_file(dst, dump_content, force)
         console.print_json(dump_content)
     except AssertionError as e:
@@ -106,7 +119,7 @@ def cmd_dump_json_to_str(
 def cmd_callback(verbose: OPT_VERBOSE = False, quiet: OPT_QUIET = False):
     console.quiet = quiet
     if verbose:
-        config_log(logging.DEBUG)
+        config_log("DEBUG")
 
 
 if __name__ == "__main__":

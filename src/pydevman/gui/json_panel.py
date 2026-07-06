@@ -4,8 +4,14 @@ import json
 import tkinter as tk
 from tkinter import messagebox, ttk
 
-from pydevman.core.json.handler import api_dump_json
-from pydevman.core.json.processor import JsonHandler, JsonProcessor
+from pydevman.core.json.handler import (
+    dump_json,
+    filter_prefix,
+    filter_suffix,
+    parse_json,
+    recursive_unescape,
+    strip_html_tags,
+)
 
 
 class JsonFrame(tk.Frame):
@@ -120,22 +126,21 @@ class JsonFrame(tk.Frame):
             return
 
         try:
-            processor = JsonProcessor()
+            data = parse_json(raw)
             if self._var_recursive.get():
-                processor.register(JsonHandler.RECURSIVE_UNESCAPE)
+                data = recursive_unescape(data)
             if self._var_del_tag.get():
-                processor.register(JsonHandler.DEL_HTML_TAG)
+                data = strip_html_tags(data)
             if self._var_prefix.get():
                 prefix = self._parse_list(self._entry_prefix.get())
                 if prefix:
-                    processor.register(JsonHandler.FILTER_FIELD_BY_PREFIX, prefix_filter=prefix)
+                    data = filter_prefix(data, prefix)
             if self._var_suffix.get():
                 suffix = self._parse_list(self._entry_suffix.get())
                 if suffix:
-                    processor.register(JsonHandler.FILTER_FIELD_BY_SUFFIX, suffix_filter=suffix)
-            result = processor.process(raw)
+                    data = filter_suffix(data, suffix)
 
-            output = api_dump_json(result, inline=self._var_inline.get())
+            output = dump_json(data, inline=self._var_inline.get())
             self._set_output(output)
         except json.JSONDecodeError as e:
             messagebox.showerror("JSON 解析失败", str(e))
@@ -148,7 +153,7 @@ class JsonFrame(tk.Frame):
             messagebox.showwarning("提示", "输入为空")
             return
         try:
-            result = api_dump_json(raw, inline=self._var_inline.get())
+            result = dump_json(raw, inline=self._var_inline.get())
             self._set_output(result)
         except Exception as e:
             messagebox.showerror("错误", str(e))

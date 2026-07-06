@@ -1,16 +1,15 @@
-import logging
 import time
 from os import PathLike
 from pathlib import Path
 from typing import Union
 
+from loguru import logger
 from tinydb import Query, TinyDB
 
 # 数据库连接
-log = logging.getLogger(__name__)
 
 
-class JsonCache:
+class JsonDatabase:
     """json 数据库, 使用 json 文件存储，方便直接修改"""
 
     KEY_NAME = "key"
@@ -18,7 +17,7 @@ class JsonCache:
     TIMESTAMP = "timestamp"
 
     def __init__(self, path: PathLike):
-        log.debug(f"连接数据库: {path}")
+        logger.debug(f"连接数据库: {path}")
         _parent = Path(path).parent
         _parent.mkdir(parents=True, exist_ok=True)
         self._cache = TinyDB(path)
@@ -95,5 +94,5 @@ class JsonCache:
         return res3
 
     def close(self):
-        log.info("关闭缓存")
+        logger.info("关闭缓存")
         self._cache.close()

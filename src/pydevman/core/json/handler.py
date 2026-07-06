@@ -1,151 +1,84 @@
 """
 Author: Jacky Lee
 Date: 2025-10-22
-Description: 递归解析 json 代码
+Description: JSON 工具函数 — 每个功能独立可调用，无组合/责任链
 """
 
 import json
-from abc import ABC, abstractmethod
-from typing import Iterable, Union
+from typing import Any
 
 from loguru import logger
 
 
-class JsonFieldHandlerInterface(ABC):
-    """Json字段处理接口"""
-
-    @abstractmethod
-    def handle_dict(self, arg: dict): ...
-
-    @abstractmethod
-    def handle_list(self, arg: list): ...
-
-    @abstractmethod
-    def handle_str(self, arg: str): ...
-
-    @abstractmethod
-    def handle_int(self, arg: int): ...
-
-    @abstractmethod
-    def handle_float(self, arg: float): ...
-
-    @abstractmethod
-    def handle_bool(self, arg: bool): ...
-
-    @abstractmethod
-    def handle_none(self, arg): ...
-
-    @abstractmethod
-    def handle(self, arg): ...
+def parse_json(text: str) -> Any:
+    """普通去转义：解析 JSON 字符串为 Python 对象（单层，不递归）"""
+    return json.loads(text)
 
 
-class AbstractHandler(JsonFieldHandlerInterface):
-    def handle_dict(self, arg):
-        logger.debug("handle dict...")
-        _di = {}
-        for k, v in arg.items():
-            _di[k] = self.handle(v)
-        return _di
-
-    def handle_list(self, arg):
-        logger.debug("handle list...")
-        _list = []
-        for _, item in enumerate(arg):
-            tmp = self.handle(item)
-            _list.append(tmp)
-        return _list
-
-    def handle_str(self, arg):
-        return arg
-
-    def handle_int(self, arg):
-        return arg
-
-    def handle_float(self, arg):
-        return arg
-
-    def handle_bool(self, arg):
-        return arg
-
-    def handle_none(self, arg):
-        return arg
-
-    def handle(self, arg):
-        if arg is None:
-            return self.handle_none(arg)
-        if isinstance(arg, list):
-            return self.handle_list(arg)
-        elif isinstance(arg, dict):
-            return self.handle_dict(arg)
-        elif isinstance(arg, str):
-            return self.handle_str(arg)
-        # isinstance(False, int) >> true
-        # isinstance(True, int) >> true
-        # issubclass(bool, int) >> true
-        elif isinstance(arg, int):
-            return self.handle_int(arg)
-        elif isinstance(arg, float):
-            return self.handle_float(arg)
-        else:
-            raise TypeError(
-                "Argument is not any of List, Object, String, Number or None."
-            )
-
-
-class RecursiveUnescapeHandler(AbstractHandler):
-    """递归去转义,入参为 dict, list, str, int, float, None 中的一种"""
-
-    def handle_str(self, arg) -> Union[dict, list, str, int, float, None]:
+def recursive_unescape(data: Any) -> Any:
+    """递归去转义：深度遍历，对字符串值尝试 json.loads，成功则递归继续"""
+    if data is None:
+        return None
+    if isinstance(data, (bool, int, float)):
+        return data
+    if isinstance(data, str):
         try:
-            # 如果可以被去转义
-            shallow_parsed = json.loads(arg)
-        except json.JSONDecodeError:
-            return arg
-        deep_parsed = self.handle(shallow_parsed)
-        return deep_parsed
+            parsed = json.loads(data)
+        except (json.JSONDecodeError, TypeError):
+            return data
+        return recursive_unescape(parsed)
+    if isinstance(data, list):
+        return [recursive_unescape(item) for item in data]
+    if isinstance(data, dict):
+        return {k: recursive_unescape(v) for k, v in data.items()}
+    return data
 
 
-class DelHtmlTagHandler(AbstractHandler):
-    def handle_str(self, arg):
-        import bs4
+def strip_html_tags(data: Any) -> Any:
+    """去除 HTML 标签：递归去除所有字符串值中的 HTML 标签"""
+    from bs4 import BeautifulSoup
 
-        return bs4.BeautifulSoup(arg, "html.parser").get_text()
-
-
-class FilterFieldByPrefixHandler(AbstractHandler):
-    def __init__(self, prefix_filter: Iterable[str]):
-        self._prefix = set(prefix_filter)
-
-    def is_need_filter(self, s: str) -> bool:
-        return any(s.startswith(p) for p in self._prefix)
-
-    def handle_dict(self, arg):
-        _di = {}
-        for k, v in arg.items():
-            if self.is_need_filter(k):
-                continue
-            _di[k] = self.handle(v)
-        return _di
+    if data is None:
+        return None
+    if isinstance(data, (bool, int, float)):
+        return data
+    if isinstance(data, str):
+        return BeautifulSoup(data, "html.parser").get_text()
+    if isinstance(data, list):
+        return [strip_html_tags(item) for item in data]
+    if isinstance(data, dict):
+        return {k: strip_html_tags(v) for k, v in data.items()}
+    return data
 
 
-class FilterFieldBySuffixHandler(AbstractHandler):
-    def __init__(self, suffix_filter: Iterable[str]):
-        self._suffix = set(suffix_filter)
-
-    def is_need_filter(self, s: str) -> bool:
-        return any(s.endswith(p) for p in self._suffix)
-
-    def handle_dict(self, arg):
-        _di = {}
-        for k, v in arg.items():
-            if self.is_need_filter(k):
-                continue
-            _di[k] = self.handle(v)
-        return _di
+def filter_prefix(data: Any, prefixes: list[str]) -> Any:
+    """过滤前缀字段：递归删除键以指定前缀开头的字典项"""
+    if isinstance(data, dict):
+        return {
+            k: filter_prefix(v, prefixes)
+            for k, v in data.items()
+            if not any(k.startswith(p) for p in prefixes)
+        }
+    if isinstance(data, list):
+        return [filter_prefix(item, prefixes) for item in data]
+    return data
 
 
-def api_dump_json(text: Union[str, dict, list, int, bool], inline=False):
+def filter_suffix(data: Any, suffixes: list[str]) -> Any:
+    """过滤后缀字段：递归删除键以指定后缀结尾的字典项"""
+    if isinstance(data, dict):
+        return {
+            k: filter_suffix(v, suffixes)
+            for k, v in data.items()
+            if not any(k.endswith(s) for s in suffixes)
+        }
+    if isinstance(data, list):
+        return [filter_suffix(item, suffixes) for item in data]
+    return data
+
+
+def dump_json(data: Any, inline: bool = False) -> str:
+    """将 Python 对象序列化为 JSON 字符串"""
     if inline:
-        return json.dumps(text, ensure_ascii=False)
-    else:
-        return json.dumps(text, indent=2, ensure_ascii=False)
+        return json.dumps(data, ensure_ascii=False)
+    return json.dumps(data, indent=2, ensure_ascii=False)
